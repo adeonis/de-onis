@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>de Onís Family Heritage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* === INDEX-SPECIFIC STYLES === */
+
+        /* Hero */
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2.5rem 4rem;
+            background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-warm) 100%);
+            margin-top: var(--nav-height);
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: var(--font-serif);
+            font-size: clamp(2.75rem, 7vw, 4.5rem);
+            font-weight: 400;
+            color: var(--color-text);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .hero .subtitle {
+            font-size: 1.125rem;
+            font-weight: 300;
+            color: var(--color-text-muted);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .hero .description {
+            font-size: 1rem;
+            color: var(--color-text-muted);
+            max-width: 37.5rem;
+            line-height: 1.8;
+            margin: 0 auto 3rem;
+            font-weight: 300;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            stroke: var(--color-accent-light);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(0.625rem); }
+            60% { transform: translateX(-50%) translateY(0.3rem); }
+        }
+
+        /* Generations Grid */
+        .generations {
+            padding: var(--section-pad) 2.5rem;
+            max-width: var(--container-max);
+            margin: 0 auto;
+        }
+
+        .generations .heading-section {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .generations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+            gap: 2rem;
+        }
+
+        .gen-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .gen-card-link:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 4px;
+            border-radius: 2px;
+        }
+
+        .generation-number {
+            font-family: var(--font-serif);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .generation-name {
+            font-family: var(--font-serif);
+            font-size: 1.625rem;
+            font-weight: 400;
+            color: var(--color-text);
+            margin-bottom: 0.375rem;
+            letter-spacing: -0.01em;
+        }
+
+        .generation-dates {
+            font-size: 0.8125rem;
+            color: var(--color-text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .generation-medium {
+            display: inline-block;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            background: rgba(139, 69, 19, 0.08);
+            padding: 0.25rem 0.75rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+
+        .generation-role {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+        }
+
+        .generation-partner {
+            margin-top: 1rem;
+            padding-top: 0.875rem;
+            border-top: 1px solid var(--color-border);
+            font-size: 0.8125rem;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+        }
+
+        .generation-partner strong {
+            font-weight: 500;
+            color: var(--color-spouse);
+        }
+
+        /* Story Section */
+        .story {
+            padding: var(--section-pad) 2.5rem;
+            background-color: var(--color-bg-warm);
+        }
+
+        .story-inner {
+            max-width: var(--prose-max);
+            margin: 0 auto;
+        }
+
+        .story .heading-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .story p {
+            font-size: 1rem;
+            color: var(--color-text);
+            line-height: 1.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .story .link-accent {
+            display: inline-block;
+            margin-top: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                min-height: auto;
+                padding: 5rem 1.5rem 3rem;
+            }
+
+            .generations {
+                padding: var(--section-pad-mobile) 1.25rem;
+            }
+
+            .generations .heading-section {
+                margin-bottom: 2.5rem;
+            }
+
+            .generations-grid {
+                gap: 1.5rem;
+            }
+
+            .story {
+                padding: var(--section-pad-mobile) 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+
+            .generations-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+
+            .generation-name {
+                font-size: 1.375rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Accessibility: skip link -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- Navigation -->
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">de Onís</a>
+            <ul class="nav-links">
+                <li><a href="index.html" aria-current="page">Home</a></li>
+                <li><a href="tree.html">Family Tree</a></li>
+                <li><a href="timeline.html">Timeline</a></li>
+                <li><a href="profiles.html">Profiles</a></li>
+            </ul>
+            <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-mobile" id="navMobile" role="navigation" aria-label="Mobile navigation">
+                <a href="index.html" aria-current="page">Home</a>
+                <a href="tree.html">Family Tree</a>
+                <a href="timeline.html">Timeline</a>
+                <a href="profiles.html">Profiles</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>The de Onís Family</h1>
+                <p class="subtitle">Eight generations of bridging worlds</p>
+                <p class="description">From Salamancan diplomacy to human rights filmmaking — 250 years of connecting the Americas and telling stories that matter.</p>
+            </div>
+            <div class="scroll-indicator" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M19 16l-7 7-7-7"/></svg>
+            </div>
+        </section>
+
+        <!-- Generations -->
+        <section class="generations" aria-label="Family generations">
+            <h2 class="heading-section">Eight Generations, Eight Mediums</h2>
+            <div class="generations-grid">
+
+                <!-- Gen I -->
+                <a href="profiles.html#luis-de-onis" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">I</div>
+                        <h3 class="generation-name">Luis de Onís</h3>
+                        <p class="generation-dates">1762–1827</p>
+                        <span class="generation-medium">Treaties</span>
+                        <p class="generation-role">Diplomat who shaped the Americas through negotiation and vision</p>
+                        <p class="generation-partner"><strong>Federica von Mercklein</strong> — German noblewoman; their marriage in Dresden began the family's cross-cultural story</p>
+                    </article>
+                </a>
+
+                <!-- Gen II -->
+                <a href="profiles.html#mauricio-carlos" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">II</div>
+                        <h3 class="generation-name">Mauricio Carlos</h3>
+                        <p class="generation-dates">1790–1861</p>
+                        <span class="generation-medium">Politics</span>
+                        <p class="generation-role">Minister of State in service of the Spanish crown</p>
+                        <p class="generation-partner"><strong>Carolina de Onís</strong> — first cousin; their children bore the surname Onís y Onís</p>
+                    </article>
+                </a>
+
+                <!-- Gen III -->
+                <a href="profiles.html#luis-carlos" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">III</div>
+                        <h3 class="generation-name">Luis Carlos</h3>
+                        <p class="generation-dates">c. 1815–?</p>
+                        <span class="generation-medium">Military</span>
+                        <p class="generation-role">Infantry Lieutenant — the bridge between diplomacy and scholarship</p>
+                    </article>
+                </a>
+
+                <!-- Gen IV -->
+                <a href="profiles.html#jose-maria-lopez" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">IV</div>
+                        <h3 class="generation-name">José María</h3>
+                        <p class="generation-dates">1848–1920</p>
+                        <span class="generation-medium">Archives</span>
+                        <p class="generation-role">Head Librarian of the University of Salamanca, friend of Unamuno</p>
+                    </article>
+                </a>
+
+                <!-- Gen V -->
+                <a href="profiles.html#federico-de-onis" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">V</div>
+                        <h3 class="generation-name">Federico de Onís</h3>
+                        <p class="generation-dates">1885–1966</p>
+                        <span class="generation-medium">Scholarship</span>
+                        <p class="generation-role">Founded Hispanic Studies at Columbia University</p>
+                        <p class="generation-partner"><strong>Harriet Wishnieff</strong> — pioneering translator who brought Latin American literature to English-speaking audiences</p>
+                    </article>
+                </a>
+
+                <!-- Gen VI -->
+                <a href="profiles.html#juan-de-onis" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">VI</div>
+                        <h3 class="generation-name">Juan de Onís</h3>
+                        <p class="generation-dates">1927–2019</p>
+                        <span class="generation-medium">Journalism</span>
+                        <p class="generation-role">New York Times correspondent covering Latin America for three decades</p>
+                    </article>
+                </a>
+
+                <!-- Gen VII -->
+                <a href="profiles.html#paco-de-onis" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">VII</div>
+                        <h3 class="generation-name">Paco de Onís</h3>
+                        <p class="generation-dates">b. 1954</p>
+                        <span class="generation-medium">Film</span>
+                        <p class="generation-role">Human rights documentarian and co-founder of Skylight Pictures</p>
+                        <p class="generation-partner"><strong>Pamela Yates</strong> — award-winning filmmaker; together they documented Guatemala's genocide for the historic Ríos Montt trial</p>
+                    </article>
+                </a>
+
+                <!-- Gen VIII -->
+                <a href="profiles.html#alejandro-de-onis" class="gen-card-link">
+                    <article class="card">
+                        <div class="generation-number">VIII</div>
+                        <h3 class="generation-name">Alejandro</h3>
+                        <p class="generation-dates">Contemporary</p>
+                        <span class="generation-medium">Communications</span>
+                        <p class="generation-role">Vice President at Knight Foundation, advancing media and democratic engagement</p>
+                    </article>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- Story -->
+        <section class="story" aria-label="Family narrative">
+            <div class="story-inner">
+                <h2 class="heading-section">The Story So Far</h2>
+
+                <p>The de Onís family traces its roots to diplomacy and vision. Beginning in the early 19th century with Luis de Onís, a Spanish diplomat of remarkable acumen, the family became known for bridging continents and cultures. Through treaty negotiations and political service, they established themselves as a bridge between the Old World and the New — between Spain and the Americas, between policy and principle.</p>
+
+                <p>Across subsequent generations, the family's defining trait remained constant: a commitment to understanding, preserving, and communicating across boundaries. Whether through scholarship, journalism, or filmmaking, each generation found new mediums for the same essential work — telling stories that illuminate the human condition and fostering deeper connections across difference.</p>
+
+                <p>Today, the de Onís family continues this legacy through diverse endeavors in media, culture, and social justice. This website honors that continuity — not as a static archive, but as a living document of how one family's commitment to bridging worlds manifests across centuries and disciplines.</p>
+
+                <a href="timeline.html" class="link-accent">Explore the full timeline &rarr;</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>A living document — last updated March 2026</p>
+        <p>Built by the de Onís family</p>
+    </footer>
+
+    <script>
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const navMobile = document.getElementById('navMobile');
+
+        hamburger.addEventListener('click', function() {
+            const isOpen = navMobile.classList.toggle('is-open');
+            hamburger.setAttribute('aria-expanded', isOpen);
+        });
+
+        // Close mobile menu on link click
+        navMobile.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMobile.classList.remove('is-open');
+                hamburger.setAttribute('aria-expanded', 'false');
+            });
+        });
+    </script>
+</body>
+</html>

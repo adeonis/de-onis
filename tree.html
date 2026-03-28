@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree — de Onís</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* === TREE-SPECIFIC STYLES === */
+        body { overflow: hidden; }
+
+        /* Main container fills below nav */
+        .tree-container {
+            position: fixed;
+            top: var(--nav-height);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* SVG canvas */
+        .tree-container svg {
+            flex: 1;
+            background-color: var(--color-bg);
+        }
+
+        /* Loading state */
+        .tree-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-bg);
+            z-index: 50;
+            transition: opacity 0.4s ease;
+        }
+
+        .tree-loading.is-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .tree-loading p {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Generation labels in SVG */
+        .gen-label {
+            font-family: var(--font-serif);
+            font-size: 1.125rem;
+            font-weight: 600;
+            fill: var(--color-text-muted);
+            text-anchor: middle;
+        }
+
+        .gen-epoch {
+            font-family: var(--font-sans);
+            font-size: 0.6875rem;
+            font-weight: 500;
+            fill: var(--color-sidebar);
+            text-anchor: middle;
+        }
+
+        /* Card nodes */
+        .node-card {
+            cursor: pointer;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+            transition: filter 0.2s ease;
+        }
+
+        .node-card:hover {
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+        }
+
+        .node-card rect { transition: all 0.2s ease; }
+        .node-card:hover rect { filter: brightness(0.97); }
+
+        .node-direct rect  { fill: #fff; stroke: var(--color-accent); stroke-width: 3; rx: 4; }
+        .node-spouse rect  { fill: #fff; stroke: var(--color-spouse); stroke-width: 2; rx: 4; }
+        .node-sidebar rect { fill: var(--color-bg-warm); stroke: var(--color-sidebar); stroke-width: 2; rx: 4; }
+        .node-unknown rect { fill: #fff; stroke: var(--color-sidebar); stroke-width: 2; stroke-dasharray: 4,3; rx: 4; }
+
+        .node-name  { font-family: var(--font-serif); font-size: 0.8125rem; font-weight: 600; fill: var(--color-text); text-anchor: middle; pointer-events: none; }
+        .node-dates { font-family: var(--font-sans); font-size: 0.625rem; fill: var(--color-text-muted); text-anchor: middle; pointer-events: none; }
+        .node-role  { font-family: var(--font-sans); font-size: 0.5625rem; fill: var(--color-sidebar); text-anchor: middle; pointer-events: none; }
+
+        .parent-child-link { fill: none; stroke: var(--color-accent-light); stroke-width: 2; pointer-events: none; }
+        .marriage-link     { fill: none; stroke: var(--color-sidebar); stroke-width: 1.5; stroke-dasharray: 5,3; pointer-events: none; }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 1.25rem;
+            left: 2.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--color-border);
+            border-radius: 0.25rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            display: flex;
+            gap: 1.5rem;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 0.5rem; }
+
+        .legend-box {
+            width: 1.25rem;
+            height: 0.75rem;
+            border-radius: 2px;
+        }
+
+        .legend-direct  { border: 2px solid var(--color-accent); background: #fff; }
+        .legend-spouse   { border: 2px solid var(--color-spouse); background: #fff; }
+        .legend-sidebar  { border: 2px solid var(--color-sidebar); background: var(--color-bg-warm); }
+        .legend-unknown  { border: 2px dashed var(--color-sidebar); background: #fff; }
+        .legend-text     { color: var(--color-text-muted); font-weight: 500; }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            top: 1.25rem;
+            right: 2.5rem;
+            display: flex;
+            gap: 0.625rem;
+            z-index: 100;
+        }
+
+        .btn {
+            background-color: #fff;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            padding: 0.5rem 0.875rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--color-bg-warm);
+            border-color: var(--color-accent-light);
+            color: var(--color-accent);
+        }
+
+        /* Popup */
+        .popup {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid var(--color-border);
+            border-radius: 0.375rem;
+            padding: 1rem;
+            max-width: 18.75rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            display: none;
+            z-index: 500;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .popup.visible { display: block; }
+
+        .popup-title     { font-family: var(--font-serif); font-size: 1rem; font-weight: 600; color: var(--color-text); margin-bottom: 0.5rem; }
+        .popup-dates     { font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 0.625rem; font-weight: 500; }
+        .popup-role      { font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 0.625rem; font-style: italic; }
+        .popup-narrative { font-size: 0.75rem; line-height: 1.5; color: var(--color-text); margin-bottom: 0.75rem; }
+
+        .popup-link {
+            display: inline-block;
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.6875rem;
+            padding: 0.375rem 0.625rem;
+            border: 1px solid var(--color-accent-light);
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+
+        .popup-link:hover {
+            background-color: var(--color-accent);
+            color: #fff;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--color-sidebar);
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .popup-close:hover { color: var(--color-accent); }
+
+        @media (max-width: 768px) {
+            .legend {
+                left: 1rem;
+                bottom: 1rem;
+                gap: 0.75rem;
+                font-size: 0.6875rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .controls {
+                right: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Accessibility: skip link -->
+    <a href="#tree-svg" class="skip-link">Skip to family tree</a>
+
+    <!-- Navigation -->
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">de Onís</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tree.html" aria-current="page">Family Tree</a></li>
+                <li><a href="timeline.html">Timeline</a></li>
+                <li><a href="profiles.html">Profiles</a></li>
+            </ul>
+            <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="nav-mobile" id="navMobile" role="navigation" aria-label="Mobile navigation">
+                <a href="index.html">Home</a>
+                <a href="tree.html" aria-current="page">Family Tree</a>
+                <a href="timeline.html">Timeline</a>
+                <a href="profiles.html">Profiles</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Tree Container -->
+    <main class="tree-container" id="main-content">
+        <!-- Loading fallback -->
+        <div class="tree-loading" id="tree-loading" aria-live="polite">
+            <p>Loading family tree&hellip;</p>
+        </div>
+
+        <svg id="tree-svg" role="img" aria-label="Interactive de Onís family tree spanning eight generations"></svg>
+
+        <!-- Accessible text alternative -->
+        <div class="sr-only" id="tree-text-alt">
+            <h2>De Onís Family Tree</h2>
+            <p>Eight generations from Luis de Onís (1762–1827) to Alejandro de Onís (contemporary). Navigate the interactive tree by clicking on family member nodes, or visit the Profiles page for full biographies.</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn" id="fit-btn">Fit to Screen</button>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend" aria-label="Tree legend">
+            <div class="legend-item">
+                <div class="legend-box legend-direct"></div>
+                <span class="legend-text">Direct Line</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box legend-spouse"></div>
+                <span class="legend-text">Spouse</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box legend-sidebar"></div>
+                <span class="legend-text">Sibling/Other</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box legend-unknown"></div>
+                <span class="legend-text">Needs Research</span>
+            </div>
+        </div>
+
+        <!-- Popup -->
+        <div class="popup" id="popup" role="dialog" aria-label="Family member details">
+            <button class="popup-close" id="popup-close" aria-label="Close">&times;</button>
+            <div class="popup-title" id="popup-title"></div>
+            <div class="popup-dates" id="popup-dates"></div>
+            <div class="popup-role" id="popup-role"></div>
+            <div class="popup-narrative" id="popup-narrative"></div>
+            <a href="#" class="popup-link" id="popup-link" style="display: none;">View Full Profile</a>
+        </div>
+    </main>
+
+    <script>
+        // Mobile nav
+        const hamburger = document.getElementById('hamburger');
+        const navMobile = document.getElementById('navMobile');
+        hamburger.addEventListener('click', function() {
+            const isOpen = navMobile.classList.toggle('is-open');
+            hamburger.setAttribute('aria-expanded', isOpen);
+        });
+        navMobile.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMobile.classList.remove('is-open');
+                hamburger.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // FAMILY DATA
+        const people = [
+            { id: "luis-de-onis", name: "Luis de Onís y González-Vara", shortName: "Luis de Onís", generation: 1, born: 1762, died: 1827, role: "Diplomat; Adams-Onís Treaty", type: "direct", narrative: "Spanish career diplomat. Negotiated the Adams–Onís Treaty (1819) with John Quincy Adams, ceding Florida to the United States." },
+            { id: "federica-von-mercklein", name: "Federica von Mercklein", shortName: "Federica", generation: 1, born: 1767, died: 1817, role: "Wife of Luis; German noblewoman", type: "spouse", narrative: "German noblewoman who married Luis in Dresden in 1788. The family's first cross-cultural union." },
+            { id: "narcisa-de-onis", name: "Narcisa de Onís", shortName: "Narcisa", generation: 2, born: 1797, died: 1866, role: "Daughter of Luis", type: "sidebar", narrative: "Daughter of Luis de Onís. Details about her life remain to be fully documented." },
+            { id: "clementina-de-onis", name: "Clementina de Onís", shortName: "Clementina", generation: 2, born: 1803, died: 1835, role: "Daughter of Luis", type: "sidebar", narrative: "Daughter of Luis de Onís. She passed away at a young age in 1835." },
+            { id: "mauricio-carlos", name: "Mauricio Carlos de Onís", shortName: "Mauricio Carlos", generation: 2, born: 1790, died: 1861, role: "Minister of State; President of Congress", type: "direct", narrative: "Eldest son of Luis, born in Dresden. Served as Spain's Minister of State (1840) and President of the Congress of Deputies." },
+            { id: "carolina-de-onis", name: "Carolina de Onís", shortName: "Carolina", generation: 2, born: 1801, died: 1867, role: "Wife of Mauricio Carlos", type: "spouse", narrative: "First cousin of Mauricio Carlos. Their marriage produced the distinctive 'Onís y Onís' double surname." },
+            { id: "luis-carlos", name: "Luis Carlos de Onís y Onís", shortName: "Luis Carlos", generation: 3, born: 1822, died: 1889, role: "Father of José María", type: "direct", narrative: "Father of José María. The 'Onís y Onís' double surname bearer. Biographical details remain to be established." },
+            { id: "unknown-lopez", name: "[Sra. López]", shortName: "Sra. López", generation: 3, born: null, died: null, role: "Wife of Luis Carlos", type: "unknown", narrative: "Wife of Luis Carlos de Onís y Onís. Her name and background remain to be researched." },
+            { id: "jose-maria", name: "José María Onís López", shortName: "José María", generation: 4, born: 1848, died: 1920, role: "Head Librarian, Univ. of Salamanca", type: "direct", narrative: "Head Librarian of the University of Salamanca. Close friend of Miguel de Unamuno. The 'patriarca de la familia Onís.'" },
+            { id: "unknown-sanchez", name: "[Sra. Sánchez]", shortName: "Sra. Sánchez", generation: 4, born: null, died: null, role: "Wife of José María", type: "unknown", narrative: "Wife of José María Onís López. Her name and biographical details require further research." },
+            { id: "andrea-rodriguez", name: "Andrea Rodríguez Bondía", shortName: "Andrea", generation: 5, born: null, died: null, role: "First wife of Federico", type: "spouse", narrative: "Married Federico in Salamanca (1908). Remained in Spain with sons José María, Federico Jr., and Arturo after Federico left for Columbia." },
+            { id: "federico", name: "Federico de Onís Sánchez", shortName: "Federico de Onís", generation: 5, born: 1885, died: 1966, role: "Founded Columbia Hispanic Studies", type: "direct", narrative: "Founded Columbia's Department of Spanish and the Instituto de las Españas. Published Gabriela Mistral's first book." },
+            { id: "harriet-wishnieff", name: "Harriet Wishnieff de Onís", shortName: "Harriet de Onís", generation: 5, born: "1896", died: 1969, role: "Translator; Latin American literature", type: "spouse", narrative: "Published ~40 translations of Latin American literature. Recommended Borges to Knopf in 1952." },
+            { id: "jose-maria-onis-bondia", name: "José María de Onís Bondía", shortName: "José María (hijo)", generation: 6, born: 1911, died: 2003, role: "UC Boulder; Mexican American Studies", type: "direct", narrative: "Son of Federico and Andrea. Professor at UC Boulder, founded Mexican American Studies (1965)." },
+            { id: "federico-jr", name: "Federico de Onís Jr.", shortName: "Federico Jr.", generation: 6, born: null, died: null, role: "Remained in Spain", type: "sidebar", narrative: "Third child of Federico and Andrea. Remained in Spain with his mother." },
+            { id: "arturo-de-onis", name: "Arturo de Onís", shortName: "Arturo", generation: 6, born: null, died: null, role: "Remained in Spain", type: "sidebar", narrative: "Youngest son of Federico and Andrea. Remained in Spain. Mentioned in letters from María de Unamuno." },
+            { id: "juan-journalist", name: "Juan de Onís", shortName: "Juan de Onís", generation: 6, born: 1927, died: 2019, role: "NYT & LA Times correspondent", type: "direct", narrative: "Foreign correspondent for the NYT and LA Times for 26 years. Covered Latin America." },
+            { id: "paco", name: "Paco de Onís", shortName: "Paco de Onís", generation: 7, born: null, died: null, role: "Exec. Dir. Skylight; filmmaker", type: "direct", narrative: "Co-founded Skylight with Pamela Yates. Human rights documentarian." },
+            { id: "jody-hagberg", name: "Jody Hagberg", shortName: "Jody Hagberg", generation: 7, born: null, died: null, role: "First wife of Paco", type: "spouse", narrative: "First wife of Paco de Onís. Mother of Alejandro." },
+            { id: "pamela-yates", name: "Pamela Yates", shortName: "Pamela Yates", generation: 7, born: null, died: null, role: "Co-Founder Skylight; Second wife", type: "spouse", narrative: "Paco's second wife and creative partner. Guggenheim Fellow. Her film Granito was evidence in the Ríos Montt genocide trial." },
+            { id: "alejandro", name: "Alejandro de Onís", shortName: "Alejandro", generation: 8, born: null, died: null, role: "VP Communications, Knight Foundation", type: "direct", narrative: "VP of Communications at the Knight Foundation. Son of Paco de Onís and Jody Hagberg." }
+        ];
+
+        const relationships = [
+            { type: "marriage", source: "luis-de-onis", target: "federica-von-mercklein" },
+            { type: "parent", source: "luis-de-onis", target: "narcisa-de-onis" },
+            { type: "parent", source: "luis-de-onis", target: "clementina-de-onis" },
+            { type: "parent", source: "luis-de-onis", target: "mauricio-carlos" },
+            { type: "marriage", source: "mauricio-carlos", target: "carolina-de-onis" },
+            { type: "parent", source: "mauricio-carlos", target: "luis-carlos" },
+            { type: "marriage", source: "luis-carlos", target: "unknown-lopez" },
+            { type: "parent", source: "luis-carlos", target: "jose-maria" },
+            { type: "marriage", source: "jose-maria", target: "unknown-sanchez" },
+            { type: "parent", source: "jose-maria", target: "andrea-rodriguez" },
+            { type: "parent", source: "jose-maria", target: "federico" },
+            { type: "parent", source: "jose-maria", target: "harriet-wishnieff" },
+            { type: "marriage", source: "andrea-rodriguez", target: "federico" },
+            { type: "marriage", source: "harriet-wishnieff", target: "federico" },
+            { type: "parent", source: "andrea-rodriguez", target: "jose-maria-onis-bondia" },
+            { type: "parent", source: "andrea-rodriguez", target: "federico-jr" },
+            { type: "parent", source: "andrea-rodriguez", target: "arturo-de-onis" },
+            { type: "parent", source: "harriet-wishnieff", target: "juan-journalist" },
+            { type: "marriage", source: "paco", target: "jody-hagberg" },
+            { type: "marriage", source: "paco", target: "pamela-yates" },
+            { type: "parent", source: "juan-journalist", target: "paco" },
+            { type: "parent", source: "jody-hagberg", target: "alejandro" },
+            { type: "parent", source: "paco", target: "alejandro" }
+        ];
+
+        // LAYOUT
+        const CARD_WIDTH = 160;
+        const CARD_HEIGHT = 80;
+        const GEN_VERTICAL_SPACING = 200;
+        const HORIZONTAL_SPACING = 200;
+        const GEN_LABEL_OFFSET = 60;
+
+        function calculatePositions() {
+            const positionMap = {};
+            positionMap["luis-de-onis"] = { x: 0, y: 0 };
+            positionMap["federica-von-mercklein"] = { x: HORIZONTAL_SPACING + 100, y: 0 };
+            const gen2X = -HORIZONTAL_SPACING;
+            positionMap["narcisa-de-onis"] = { x: gen2X - HORIZONTAL_SPACING, y: GEN_VERTICAL_SPACING };
+            positionMap["clementina-de-onis"] = { x: gen2X, y: GEN_VERTICAL_SPACING };
+            positionMap["mauricio-carlos"] = { x: HORIZONTAL_SPACING * 0.5, y: GEN_VERTICAL_SPACING };
+            positionMap["carolina-de-onis"] = { x: HORIZONTAL_SPACING * 0.5 + HORIZONTAL_SPACING + 100, y: GEN_VERTICAL_SPACING };
+            positionMap["luis-carlos"] = { x: HORIZONTAL_SPACING * 0.5, y: GEN_VERTICAL_SPACING * 2 };
+            positionMap["unknown-lopez"] = { x: HORIZONTAL_SPACING * 0.5 + HORIZONTAL_SPACING + 100, y: GEN_VERTICAL_SPACING * 2 };
+            positionMap["jose-maria"] = { x: HORIZONTAL_SPACING * 0.5, y: GEN_VERTICAL_SPACING * 3 };
+            positionMap["unknown-sanchez"] = { x: HORIZONTAL_SPACING * 0.5 + HORIZONTAL_SPACING + 100, y: GEN_VERTICAL_SPACING * 3 };
+            const fed5X = HORIZONTAL_SPACING * 0.5;
+            positionMap["andrea-rodriguez"] = { x: fed5X - HORIZONTAL_SPACING - 80, y: GEN_VERTICAL_SPACING * 4 };
+            positionMap["federico"] = { x: fed5X, y: GEN_VERTICAL_SPACING * 4 };
+            positionMap["harriet-wishnieff"] = { x: fed5X + HORIZONTAL_SPACING + 80, y: GEN_VERTICAL_SPACING * 4 };
+            positionMap["jose-maria-onis-bondia"] = { x: fed5X - HORIZONTAL_SPACING * 1.5, y: GEN_VERTICAL_SPACING * 5 };
+            positionMap["federico-jr"] = { x: fed5X - HORIZONTAL_SPACING * 0.75, y: GEN_VERTICAL_SPACING * 5 };
+            positionMap["arturo-de-onis"] = { x: fed5X - HORIZONTAL_SPACING * 0.25, y: GEN_VERTICAL_SPACING * 5 };
+            positionMap["juan-journalist"] = { x: fed5X + HORIZONTAL_SPACING, y: GEN_VERTICAL_SPACING * 5 };
+            positionMap["jody-hagberg"] = { x: fed5X + HORIZONTAL_SPACING - HORIZONTAL_SPACING - 100, y: GEN_VERTICAL_SPACING * 6 };
+            positionMap["paco"] = { x: fed5X + HORIZONTAL_SPACING, y: GEN_VERTICAL_SPACING * 6 };
+            positionMap["pamela-yates"] = { x: fed5X + HORIZONTAL_SPACING + HORIZONTAL_SPACING + 100, y: GEN_VERTICAL_SPACING * 6 };
+            positionMap["alejandro"] = { x: fed5X + HORIZONTAL_SPACING, y: GEN_VERTICAL_SPACING * 7 };
+            return positionMap;
+        }
+
+        const positionMap = calculatePositions();
+
+        // SVG SETUP
+        const svg = d3.select("#tree-svg");
+        const container = document.querySelector(".tree-container");
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        svg.attr("width", width).attr("height", height);
+
+        const g = svg.append("g");
+
+        const zoom = d3.zoom().on("zoom", (event) => {
+            g.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+
+        // FIT TO SCREEN
+        document.getElementById("fit-btn").addEventListener("click", () => {
+            const bounds = g.node().getBBox();
+            const fullWidth = bounds.width;
+            const fullHeight = bounds.height;
+            const midX = bounds.x + fullWidth / 2;
+            const midY = bounds.y + fullHeight / 2;
+            const scale = 0.75 / Math.max(fullWidth / width, fullHeight / height);
+            const translate = [width / 2 - midX * scale, height / 2 - midY * scale];
+            svg.transition().duration(750)
+                .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        });
+
+        // GENERATION LABELS
+        const genLabels = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+        const genEpochs = ["1762–1827", "1790–1867", "1822–1889", "1848–1920", "1885–1966", "1911–2003", "1927–2019", "1980–"];
+
+        [1,2,3,4,5,6,7,8].forEach((gen, idx) => {
+            const y = GEN_VERTICAL_SPACING * (gen - 1) + CARD_HEIGHT / 2;
+            g.append("text").attr("class", "gen-label").attr("x", -GEN_LABEL_OFFSET - 40).attr("y", y + 6).text(genLabels[idx]);
+            g.append("text").attr("class", "gen-epoch").attr("x", -GEN_LABEL_OFFSET - 40).attr("y", y + 18).text(genEpochs[idx]);
+        });
+
+        // DRAW LINKS
+        relationships.filter(r => r.type === "parent").forEach(rel => {
+            const source = positionMap[rel.source];
+            const target = positionMap[rel.target];
+            if (source && target) {
+                const sourceY = source.y + CARD_HEIGHT / 2;
+                const targetY = target.y - CARD_HEIGHT / 2;
+                const midY = (sourceY + targetY) / 2;
+                const path = d3.path();
+                path.moveTo(source.x, sourceY);
+                path.bezierCurveTo(source.x, midY, target.x, midY, target.x, targetY);
+                g.append("path").attr("class", "parent-child-link").attr("d", path);
+            }
+        });
+
+        relationships.filter(r => r.type === "marriage").forEach(rel => {
+            const source = positionMap[rel.source];
+            const target = positionMap[rel.target];
+            if (source && target) {
+                const y = source.y + CARD_HEIGHT / 2;
+                const minX = Math.min(source.x, target.x) + CARD_WIDTH / 2;
+                const maxX = Math.max(source.x, target.x) - CARD_WIDTH / 2;
+                g.append("line").attr("class", "marriage-link").attr("x1", minX).attr("y1", y).attr("x2", maxX).attr("y2", y);
+            }
+        });
+
+        // DRAW NODES
+        people.forEach(person => {
+            const pos = positionMap[person.id];
+            if (!pos) return;
+            const nodeGroup = g.append("g").attr("class", `node-card node-${person.type}`).attr("transform", `translate(${pos.x}, ${pos.y})`);
+            nodeGroup.append("rect").attr("width", CARD_WIDTH).attr("height", CARD_HEIGHT).attr("x", -CARD_WIDTH / 2).attr("y", -CARD_HEIGHT / 2);
+            nodeGroup.append("text").attr("class", "node-name").attr("y", -12).text(person.shortName).call(wrapText, CARD_WIDTH - 16);
+            const dateStr = getDateString(person.born, person.died);
+            nodeGroup.append("text").attr("class", "node-dates").attr("y", 10).text(dateStr);
+            nodeGroup.append("text").attr("class", "node-role").attr("y", 24).text(getShortRole(person.role)).call(wrapText, CARD_WIDTH - 16);
+            nodeGroup.on("click", () => showPopup(person, pos.x, pos.y));
+        });
+
+        // HELPERS
+        function getDateString(born, died) {
+            if (born === null && died === null) return "dates unknown";
+            if (born === null) return `–${died}`;
+            if (died === null) return `${born}–`;
+            return `${born}–${died}`;
+        }
+
+        function getShortRole(role) {
+            return role.length > 20 ? role.substring(0, 20) + "..." : role;
+        }
+
+        function wrapText(selection, width) {
+            selection.each(function() {
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word, line = [], lineNumber = 0;
+                const lineHeight = 12;
+                const y = text.attr("y");
+                const dy = parseFloat(text.attr("dy")) || 0;
+                let tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "px");
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", (++lineNumber * lineHeight + dy) + "px").text(word);
+                    }
+                }
+            });
+        }
+
+        // POPUP
+        const popup = document.getElementById("popup");
+
+        function showPopup(person, x, y) {
+            document.getElementById("popup-title").textContent = person.name;
+            document.getElementById("popup-dates").textContent = getDateString(person.born, person.died);
+            document.getElementById("popup-role").textContent = person.role;
+            document.getElementById("popup-narrative").textContent = person.narrative;
+            const profileLink = document.getElementById("popup-link");
+            profileLink.href = `profiles.html#${person.id}`;
+            profileLink.style.display = "inline-block";
+            popup.classList.add("visible");
+            popup.style.left = Math.max(20, Math.min(x + 200, width - 340)) + "px";
+            popup.style.top = Math.max(100, Math.min(y - 80, height - 400)) + "px";
+        }
+
+        document.getElementById("popup-close").addEventListener("click", () => popup.classList.remove("visible"));
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".node-card") && !e.target.closest("#popup")) popup.classList.remove("visible");
+        });
+
+        // Hide loading, fit to screen
+        setTimeout(() => {
+            document.getElementById("tree-loading").classList.add("is-hidden");
+            document.getElementById("fit-btn").click();
+        }, 100);
+    </script>
+</body>
+</html>

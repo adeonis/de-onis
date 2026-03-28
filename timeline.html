@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline — de Onís</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* === TIMELINE-SPECIFIC STYLES === */
+
+        /* Header */
+        .timeline-header {
+            margin-top: var(--nav-height);
+            padding: 3.5rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .timeline-header h1 {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .timeline-header p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--color-text-muted);
+            max-width: 37.5rem;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-header { padding: 3rem 1rem 2rem; }
+            .timeline-header h1 { font-size: 2.5rem; }
+            .timeline-header p { font-size: 1rem; }
+        }
+
+        /* Timeline container */
+        .timeline-wrapper {
+            max-width: var(--content-max);
+            margin: 3rem auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 0;
+        }
+
+        /* Center line — desktop */
+        @media (min-width: 769px) {
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: var(--color-border);
+                transform: translateX(-1px);
+            }
+        }
+
+        /* Left line — mobile */
+        @media (max-width: 768px) {
+            .timeline { padding-left: 2rem; }
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: var(--color-border);
+            }
+        }
+
+        /* Generation divider */
+        .generation-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 3rem 0;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .generation-divider::before,
+        .generation-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .generation-label {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0 1.5rem;
+            text-align: center;
+            line-height: 1.4;
+            max-width: 18.75rem;
+        }
+
+        .generation-epoch {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            color: var(--color-accent-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        /* Events */
+        .event {
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .event.in-view {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(1.25rem); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Desktop: alternating layout */
+        @media (min-width: 769px) {
+            .event {
+                display: flex;
+                align-items: center;
+                width: 100%;
+            }
+
+            .event.left { flex-direction: row-reverse; }
+
+            .event-content {
+                width: 48%;
+                padding: 1.5rem;
+                background-color: #fff;
+                border: 1px solid var(--color-border);
+                border-radius: 0.375rem;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                transition: box-shadow 0.3s ease;
+            }
+
+            .event:hover .event-content {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+
+            .event-dot-wrapper {
+                width: 4%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+
+            .event-dot {
+                width: 0.875rem;
+                height: 0.875rem;
+                border-radius: 50%;
+                background-color: var(--color-accent);
+                border: 3px solid var(--color-bg);
+                box-shadow: 0 0 0 2px var(--color-border);
+                position: relative;
+                z-index: 10;
+            }
+
+            .event.spouse .event-dot {
+                background-color: var(--color-spouse);
+            }
+
+            .event-connector {
+                position: absolute;
+                height: 1px;
+                background-color: var(--color-border);
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .event.left .event-connector  { right: 0; width: 48%; }
+            .event.right .event-connector { left: 0; width: 48%; }
+        }
+
+        /* Mobile: all right side */
+        @media (max-width: 768px) {
+            .event {
+                margin-left: 0;
+                padding-left: 2rem;
+                position: relative;
+            }
+
+            .event-dot-wrapper {
+                position: absolute;
+                left: -0.625rem;
+                top: 0;
+            }
+
+            .event-dot {
+                width: 0.75rem;
+                height: 0.75rem;
+                border-radius: 50%;
+                background-color: var(--color-accent);
+                border: 2px solid var(--color-bg);
+                box-shadow: 0 0 0 2px var(--color-border);
+            }
+
+            .event.spouse .event-dot {
+                background-color: var(--color-spouse);
+            }
+
+            .event-connector {
+                position: absolute;
+                width: 1px;
+                background-color: var(--color-border);
+                left: -0.5625rem;
+                top: 0.75rem;
+                bottom: 0;
+            }
+
+            .event-content {
+                padding: 1.25rem;
+                background-color: #fff;
+                border: 1px solid var(--color-border);
+                border-radius: 0.375rem;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                transition: box-shadow 0.3s ease;
+            }
+
+            .event:hover .event-content {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+        }
+
+        .event-year {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .event-person {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-accent-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-text {
+            font-size: 0.9375rem;
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip link -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- Navigation -->
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">de Onís</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tree.html">Family Tree</a></li>
+                <li><a href="timeline.html" aria-current="page">Timeline</a></li>
+                <li><a href="profiles.html">Profiles</a></li>
+            </ul>
+            <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="nav-mobile" id="navMobile" role="navigation" aria-label="Mobile navigation">
+                <a href="index.html">Home</a>
+                <a href="tree.html">Family Tree</a>
+                <a href="timeline.html" aria-current="page">Timeline</a>
+                <a href="profiles.html">Profiles</a>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <!-- Header -->
+        <header class="timeline-header">
+            <h1>Timeline</h1>
+            <p>250 years of the de Onís family</p>
+        </header>
+
+        <!-- Timeline -->
+        <div class="timeline-wrapper">
+            <div class="timeline" id="timeline">
+
+                <!-- GEN I: FOUNDATIONS -->
+                <div class="generation-divider">
+                    <div>
+                        <div class="generation-label">Generation I — Foundations</div>
+                        <div class="generation-epoch">1762–1827</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1762</div>
+                        <div class="event-person">Luis de Onís</div>
+                        <div class="event-text">Luis de Onís born in Cantalapiedra, Salamanca</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1788</div>
+                        <div class="event-person">Luis & Federica</div>
+                        <div class="event-text">Luis marries Federica von Mercklein in Dresden</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1790</div>
+                        <div class="event-person">Mauricio Carlos</div>
+                        <div class="event-text">Son Mauricio Carlos born in Dresden</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1816</div>
+                        <div class="event-person">Mauricio Carlos</div>
+                        <div class="event-text">Mauricio marries first cousin Carolina de Onís in Cantalapiedra</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1819</div>
+                        <div class="event-person">Luis de Onís</div>
+                        <div class="event-text">Adams–Onís Treaty signed — Spain cedes Florida to the U.S.</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1827</div>
+                        <div class="event-person">Luis de Onís</div>
+                        <div class="event-text">Luis de Onís dies in Madrid</div>
+                    </div>
+                </div>
+
+                <!-- GEN II: CONSOLIDATION -->
+                <div class="generation-divider">
+                    <div>
+                        <div class="generation-label">Generation II — Consolidation</div>
+                        <div class="generation-epoch">1840–1885</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1840</div>
+                        <div class="event-person">Mauricio Carlos</div>
+                        <div class="event-text">Mauricio Carlos serves as Minister of State of Spain</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1848</div>
+                        <div class="event-person">José María</div>
+                        <div class="event-text">José María Onís López born in Cantalapiedra</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1885</div>
+                        <div class="event-person">Federico</div>
+                        <div class="event-text">Federico de Onís born in Salamanca on December 20</div>
+                    </div>
+                </div>
+
+                <!-- GEN III: SCHOLARSHIP & TRANSLATION -->
+                <div class="generation-divider">
+                    <div>
+                        <div class="generation-label">Generation III — Scholarship & Translation</div>
+                        <div class="generation-epoch">1908–1924</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1908</div>
+                        <div class="event-person">Federico & Andrea</div>
+                        <div class="event-text">Federico marries Andrea Rodríguez Bondía in Salamanca</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1911</div>
+                        <div class="event-person">José María (hijo)</div>
+                        <div class="event-text">José María de Onís Bondía born — son of Federico and Andrea</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1916</div>
+                        <div class="event-person">Federico & Harriet</div>
+                        <div class="event-text">Federico arrives at Columbia University; Harriet graduates Barnard</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1920</div>
+                        <div class="event-person">Federico</div>
+                        <div class="event-text">Federico founds Instituto de las Españas at Columbia</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1922</div>
+                        <div class="event-person">Federico</div>
+                        <div class="event-text">Federico publishes Gabriela Mistral's first book, <em>Desolación</em></div>
+                    </div>
+                </div>
+
+                <div class="event right spouse">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1924</div>
+                        <div class="event-person">Federico & Harriet</div>
+                        <div class="event-text">Federico and Harriet Wishnieff marry on August 20</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1927</div>
+                        <div class="event-person">Juan</div>
+                        <div class="event-text">Juan de Onís born — son of Federico and Harriet</div>
+                    </div>
+                </div>
+
+                <div class="event right spouse">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1930</div>
+                        <div class="event-person">Harriet</div>
+                        <div class="event-text">Harriet publishes her first translation (<em>The Eagle and the Serpent</em>)</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1934</div>
+                        <div class="event-person">Federico</div>
+                        <div class="event-text">Federico publishes landmark <em>Antología</em> (1,200+ pages)</div>
+                    </div>
+                </div>
+
+                <div class="event right spouse">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1947</div>
+                        <div class="event-person">Harriet</div>
+                        <div class="event-text">Harriet translates Ortiz's <em>Cuban Counterpoint</em> — introduces 'transculturation'</div>
+                    </div>
+                </div>
+
+                <div class="event left spouse">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1952</div>
+                        <div class="event-person">Harriet</div>
+                        <div class="event-text">Harriet recommends Borges to Knopf — editor declines</div>
+                    </div>
+                </div>
+
+                <!-- GEN IV: EXPANSION & LEGACY -->
+                <div class="generation-divider">
+                    <div>
+                        <div class="generation-label">Generation IV — Expansion & Legacy</div>
+                        <div class="generation-epoch">1965–1969</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1965</div>
+                        <div class="event-person">José María (hijo)</div>
+                        <div class="event-text">José María de Onís Bondía founds Mexican American Studies at UC Boulder</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1966</div>
+                        <div class="event-person">Federico</div>
+                        <div class="event-text">Federico de Onís dies in San Juan, Puerto Rico</div>
+                    </div>
+                </div>
+
+                <div class="event right spouse">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1969</div>
+                        <div class="event-person">Harriet</div>
+                        <div class="event-text">Harriet de Onís dies</div>
+                    </div>
+                </div>
+
+                <!-- GEN V: DOCUMENTARY & ENVIRONMENTAL -->
+                <div class="generation-divider">
+                    <div>
+                        <div class="generation-label">Generation V — Documentary & Environmental</div>
+                        <div class="generation-epoch">1981–2024</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1981</div>
+                        <div class="event-person">Paco & Pamela</div>
+                        <div class="event-text">Paco co-founds Skylight Pictures with Pamela Yates & Peter Kinoy</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1985</div>
+                        <div class="event-person">Paco & Pamela</div>
+                        <div class="event-text"><em>Witness to War</em> wins Academy Award for Best Documentary Short</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">1992</div>
+                        <div class="event-person">Juan</div>
+                        <div class="event-text">Juan publishes <em>The Green Cathedral</em> (Oxford University Press)</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">2003</div>
+                        <div class="event-person">José María (hijo)</div>
+                        <div class="event-text">José María de Onís Bondía dies</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">2011</div>
+                        <div class="event-person">Paco & Pamela</div>
+                        <div class="event-text"><em>Granito: How to Nail a Dictator</em> premieres at Sundance</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">2017</div>
+                        <div class="event-person">Paco & Pamela</div>
+                        <div class="event-text"><em>500 Years</em> premieres at Sundance; screens in 30+ countries</div>
+                    </div>
+                </div>
+
+                <div class="event left">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">2019</div>
+                        <div class="event-person">Juan</div>
+                        <div class="event-text">Juan de Onís dies at 92</div>
+                    </div>
+                </div>
+
+                <div class="event right">
+                    <div class="event-dot-wrapper"><div class="event-connector"></div><div class="event-dot"></div></div>
+                    <div class="event-content">
+                        <div class="event-year">2024</div>
+                        <div class="event-person">Paco & Pamela</div>
+                        <div class="event-text"><em>Borderland</em> opens in 50+ U.S. cities</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>A living document — last updated March 2026</p>
+        <p>Built by the de Onís family</p>
+    </footer>
+
+    <script>
+        // Mobile nav
+        const hamburger = document.getElementById('hamburger');
+        const navMobile = document.getElementById('navMobile');
+        hamburger.addEventListener('click', function() {
+            const isOpen = navMobile.classList.toggle('is-open');
+            hamburger.setAttribute('aria-expanded', isOpen);
+        });
+        navMobile.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMobile.classList.remove('is-open');
+                hamburger.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Intersection Observer for fade-in
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.event, .generation-divider').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

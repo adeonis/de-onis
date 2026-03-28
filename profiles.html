@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profiles | de Onís Family</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        :root {
+            --profiles-nav-height: 5rem;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            padding: 4rem 2rem;
+            text-align: center;
+            background-color: var(--color-bg);
+            max-width: var(--content-max);
+            margin: 0 auto;
+        }
+
+        .page-header h1 {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-family: var(--font-sans);
+            font-size: 1.125rem;
+            color: var(--color-text-muted);
+            font-weight: 300;
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .page-header h1 {
+                font-size: 2.625rem;
+            }
+
+            .page-header p {
+                font-size: 1rem;
+            }
+        }
+
+        /* PROFILES CONTAINER */
+        .profiles-wrapper {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 2rem;
+            max-width: var(--content-max);
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: calc(100vh - var(--nav-height) - 10rem);
+        }
+
+        /* SIDEBAR / PROFILE INDEX */
+        .profile-sidebar {
+            position: sticky;
+            top: calc(var(--nav-height) + 1rem);
+            height: fit-content;
+            max-height: calc(100vh - var(--nav-height) - 2rem);
+            overflow-y: auto;
+            background-color: var(--color-bg-warm);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .generation-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .generation-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .generation-label {
+            font-family: var(--font-sans);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08rem;
+            color: var(--color-accent);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .person-tab {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 0.875rem;
+            margin-bottom: 0.5rem;
+            background: none;
+            border: 1px solid transparent;
+            border-radius: 0.375rem;
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            color: var(--color-text);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.625rem;
+        }
+
+        .person-tab:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+            border-color: var(--color-border);
+        }
+
+        .person-tab.active {
+            background-color: var(--color-accent-light);
+            color: white;
+            border-color: var(--color-accent);
+            font-weight: 500;
+        }
+
+        .person-tab .person-dot {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 0.25rem;
+        }
+
+        .person-tab .person-dot.direct {
+            background-color: var(--color-accent);
+        }
+
+        .person-tab.active .person-dot.direct {
+            background-color: white;
+        }
+
+        .person-tab .person-dot.spouse {
+            background-color: #7CB342;
+        }
+
+        .person-tab.active .person-dot.spouse {
+            background-color: white;
+        }
+
+        .person-tab .person-dot.sidebar {
+            background-color: #999;
+        }
+
+        .person-tab.active .person-dot.sidebar {
+            background-color: white;
+        }
+
+        .person-tab .person-dot.unknown {
+            background-color: transparent;
+            border: 1px dashed #999;
+        }
+
+        .person-tab.active .person-dot.unknown {
+            border-color: white;
+        }
+
+        .person-tab-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .person-tab-name {
+            font-weight: 500;
+            display: block;
+            line-height: 1.2;
+            margin-bottom: 0.1rem;
+        }
+
+        .person-tab-dates {
+            font-size: 0.75rem;
+            color: rgba(0, 0, 0, 0.5);
+            display: block;
+        }
+
+        .person-tab.active .person-tab-dates {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* PROFILE CONTENT */
+        .profiles-content {
+            background-color: var(--color-bg);
+        }
+
+        .profile-card {
+            display: none;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            background-color: var(--color-bg);
+        }
+
+        .profile-card.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .profile-gen-tag {
+            font-family: var(--font-sans);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09rem;
+            color: var(--color-accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .profile-name {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-dates {
+            font-family: var(--font-sans);
+            font-size: 0.9375rem;
+            font-weight: 300;
+            color: var(--color-text-muted);
+            margin-bottom: 0.375rem;
+        }
+
+        .profile-role {
+            font-family: var(--font-sans);
+            font-size: 0.9375rem;
+            color: var(--color-accent-light);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            border-radius: 1.25rem;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-complete {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .status-moderate {
+            background-color: #FFF8E1;
+            color: #F57F17;
+        }
+
+        .status-progress {
+            background-color: #FCE4EC;
+            color: #C2185B;
+        }
+
+        .status-needs {
+            background-color: #FFE0B2;
+            color: #E65100;
+        }
+
+        .status-minimal {
+            background-color: #F3E5F5;
+            color: #6A1B9A;
+        }
+
+        .profile-bio {
+            max-width: var(--prose-max);
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-bio p {
+            font-family: var(--font-sans);
+            font-size: 0.9375rem;
+            line-height: 1.8;
+            color: var(--color-text);
+            margin-bottom: 1rem;
+        }
+
+        .key-facts {
+            max-width: var(--prose-max);
+            margin-bottom: 2rem;
+        }
+
+        .key-facts h4 {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06rem;
+            color: var(--color-accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .key-facts ul {
+            list-style: none;
+        }
+
+        .key-facts li {
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .key-facts li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--color-accent-light);
+            font-weight: bold;
+        }
+
+        .connections {
+            max-width: var(--prose-max);
+        }
+
+        .connections h4 {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06rem;
+            color: var(--color-accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .connection-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--color-bg-warm);
+            border: 1px solid var(--color-border);
+            border-radius: 1.25rem;
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            color: var(--color-text);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .chip:hover {
+            background-color: var(--color-accent-light);
+            border-color: var(--color-accent);
+            color: white;
+        }
+
+        .chip-label {
+            font-weight: 600;
+            color: var(--color-text-muted);
+            margin-right: 0.375rem;
+        }
+
+        .chip:hover .chip-label {
+            color: white;
+        }
+
+        /* MOBILE STYLES */
+        @media (max-width: 768px) {
+            .profiles-wrapper {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            .profile-sidebar {
+                position: static;
+                height: auto;
+                max-height: none;
+                margin-bottom: 1.5rem;
+            }
+
+            .profile-card {
+                padding: 1.5rem;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
+            .profile-bio p {
+                font-size: 0.875rem;
+                line-height: 1.7;
+            }
+
+            /* Mobile sidebar: horizontal scroll */
+            .profile-sidebar {
+                display: flex;
+                gap: 1rem;
+                overflow-x: auto;
+                padding: 1rem;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 0.375rem;
+            }
+
+            .generation-section {
+                display: flex;
+                gap: 0.75rem;
+                margin-bottom: 0;
+                white-space: nowrap;
+            }
+
+            .generation-label {
+                display: none;
+            }
+
+            .person-tab {
+                white-space: nowrap;
+                margin-bottom: 0;
+                padding: 0.625rem 0.875rem;
+                font-size: 0.8125rem;
+                flex-shrink: 0;
+            }
+
+            .person-tab-dates {
+                display: none;
+            }
+        }
+
+        /* SCROLLBAR STYLING FOR SIDEBAR */
+        .profile-sidebar::-webkit-scrollbar {
+            width: 0.375rem;
+        }
+
+        .profile-sidebar::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        .profile-sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--color-border);
+            border-radius: 0.1875rem;
+        }
+
+        .profile-sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: var(--color-text-muted);
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">de Onís</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tree.html">Family Tree</a></li>
+                <li><a href="timeline.html">Timeline</a></li>
+                <li><a href="profiles.html" aria-current="page">Profiles</a></li>
+            </ul>
+            <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="nav-mobile" id="navMobile" role="navigation" aria-label="Mobile navigation">
+                <a href="index.html">Home</a>
+                <a href="tree.html">Family Tree</a>
+                <a href="timeline.html">Timeline</a>
+                <a href="profiles.html" aria-current="page">Profiles</a>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <div class="page-header">
+            <h1>Profiles</h1>
+            <p>The people of the de Onís family</p>
+        </div>
+
+        <div class="profiles-wrapper">
+            <!-- SIDEBAR: PROFILE INDEX -->
+            <aside class="profile-sidebar" role="tablist" aria-label="Family members">
+                <!-- Generation I -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation I</div>
+                    <button class="person-tab" data-profile="luis-de-onis" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Luis de Onís</span>
+                            <span class="person-tab-dates">1762–1827</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Generation II -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation II</div>
+                    <button class="person-tab" data-profile="mauricio-carlos" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Mauricio Carlos</span>
+                            <span class="person-tab-dates">1790–1861</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Generation III -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation III</div>
+                    <button class="person-tab" data-profile="luis-carlos" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Luis Carlos</span>
+                            <span class="person-tab-dates">1820–1890</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Generation IV -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation IV</div>
+                    <button class="person-tab" data-profile="jose-maria-lopez" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">José María Onís López</span>
+                            <span class="person-tab-dates">1848–1920</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Generation V -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation V</div>
+                    <button class="person-tab" data-profile="federico-de-onis" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Federico de Onís</span>
+                            <span class="person-tab-dates">1885–1966</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="harriet-wishnieff" role="tab" aria-selected="false">
+                        <div class="person-dot spouse"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Harriet Wishnieff</span>
+                            <span class="person-tab-dates">1896?–1969</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="andrea-rodriguez" role="tab" aria-selected="false">
+                        <div class="person-dot spouse"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Andrea Rodríguez</span>
+                            <span class="person-tab-dates">c. 1880s–?</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Generation VI -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation VI</div>
+                    <button class="person-tab" data-profile="jose-maria-bondia" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">José de Onís</span>
+                            <span class="person-tab-dates">1911–2003</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="federico-jr" role="tab" aria-selected="false">
+                        <div class="person-dot sidebar"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Federico Jr.</span>
+                            <span class="person-tab-dates">1909–1967</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="arturo-de-onis" role="tab" aria-selected="false">
+                        <div class="person-dot sidebar"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Arturo de Onís</span>
+                            <span class="person-tab-dates">Dates unknown</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="juan-de-onis" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Juan de Onís</span>
+                            <span class="person-tab-dates">1927–2019</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Generation VII -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation VII</div>
+                    <button class="person-tab" data-profile="paco-de-onis" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Paco de Onís</span>
+                            <span class="person-tab-dates">b. 1954</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="jody-hagberg" role="tab" aria-selected="false">
+                        <div class="person-dot spouse"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Jody Hagberg</span>
+                            <span class="person-tab-dates">Unknown</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="pamela-yates" role="tab" aria-selected="false">
+                        <div class="person-dot spouse"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Pamela Yates</span>
+                            <span class="person-tab-dates">b. 1952</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Generation VIII -->
+                <div class="generation-section">
+                    <div class="generation-label">Generation VIII</div>
+                    <button class="person-tab" data-profile="alejandro-de-onis" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Alejandro de Onís</span>
+                            <span class="person-tab-dates">Contemporary</span>
+                        </div>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT: PROFILES -->
+            <section class="profiles-content" role="tabpanel">
+                <!-- Luis de Onís y González-Vara -->
+                <div class="profile-card" id="luis-de-onis" role="tabpanel" aria-labelledby="tab-luis-de-onis">
+                    <div class="profile-gen-tag">Generation I</div>
+                    <h2 class="profile-name">Luis de Onís y González-Vara</h2>
+                    <p class="profile-dates">1762–1827 | Spanish diplomat</p>
+                    <p class="profile-role">Negotiator of the Adams–Onís Treaty</p>
+                    <span class="status-badge status-complete">Complete</span>
+
+                    <div class="profile-bio">
+                        <p>Spanish career diplomat educated at the University of Salamanca by age 16. Joined his uncle's legation in Dresden in 1780, where he was immersed in the intricate world of late 18th-century European diplomacy. Married Federica von Mercklein in 1788, cementing his ties to the German-speaking world and establishing the family's international reach.</p>
+                        <p>From 1798, Luis served in the Spanish Ministry of State during turbulent decades that saw the rise and fall of Napoleon and the reshaping of Europe's political order. His most consequential achievement came in 1819 when he negotiated the Adams–Onís Treaty with U.S. Secretary of State John Quincy Adams, resulting in Spain's cession of Florida to the United States. This treaty was the capstone of his diplomatic career and remains his primary legacy in history.</p>
+                        <p>Recognized for his service, Luis was awarded the hereditary title Regidor Perpetuo de Salamanca in 1818. He published a comprehensive two-volume memoir detailing the negotiations (1820), providing invaluable documentation of the era. His final postings took him to Naples and London, where he continued to represent Spanish interests in the post-Napoleonic world.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Educated at University of Salamanca by age 16</li>
+                            <li>Joined uncle's legation in Dresden (1780)</li>
+                            <li>Married Federica von Mercklein (1788)</li>
+                            <li>Spanish Ministry of State (from 1798)</li>
+                            <li>Negotiated Adams–Onís Treaty (1819)</li>
+                            <li>Awarded Regidor Perpetuo de Salamanca (1818)</li>
+                            <li>Published two-volume memoir of negotiations (1820)</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="mauricio-carlos"><span class="chip-label">Child:</span> Mauricio Carlos</button>
+                            <span class="chip" style="background-color: #f0f0f0; color: #999; border-color: #ccc; cursor: default;"><span class="chip-label">Spouse:</span> Federica von Mercklein</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mauricio Carlos de Onís y Mercklein -->
+                <div class="profile-card" id="mauricio-carlos" role="tabpanel" aria-labelledby="tab-mauricio-carlos">
+                    <div class="profile-gen-tag">Generation II</div>
+                    <h2 class="profile-name">Mauricio Carlos de Onís y Mercklein</h2>
+                    <p class="profile-dates">1790–1861 | Spanish politician and diplomat</p>
+                    <p class="profile-role">Minister of State, President of Congress of Deputies</p>
+                    <span class="status-badge status-complete">Complete</span>
+
+                    <div class="profile-bio">
+                        <p>Eldest son of Luis de Onís, born in Dresden during his father's diplomatic posting in 1790. Mauricio Carlos inherited his father's aptitude for statecraft and rose to prominence in Spanish politics during the volatile 19th century. Following in his father's footsteps, he became a Spanish politician and diplomat of considerable influence.</p>
+                        <p>In 1840, at the height of his career, Mauricio Carlos served as Minister of State—a position of immense responsibility in Spain's government. His political prominence extended further when he became President of the Congress of Deputies, the lower house of the Spanish parliament, overseeing the chamber during a critical period of Spanish reform and consolidation.</p>
+                        <p>In 1816, Mauricio Carlos married his first cousin Carolina de Onís in Cantalapiedra. This endogamous match, common among prominent Spanish families of the era, produced an unusual distinction: their children bore the surname "Onís y Onís," a doubling of the family name that would mark subsequent generations. The couple maintained strong ties to their ancestral lands, and Mauricio Carlos died in Cantalapiedra, the town where he had married, suggesting deep roots in the Castilian heartland.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Born in Dresden (1790)</li>
+                            <li>Son of Luis de Onís, diplomat</li>
+                            <li>Minister of State (1840)</li>
+                            <li>President of Congress of Deputies</li>
+                            <li>Married first cousin Carolina de Onís (1816)</li>
+                            <li>Children bore surname "Onís y Onís"</li>
+                            <li>Died in Cantalapiedra, ancestral town (1861)</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="luis-de-onis"><span class="chip-label">Parent:</span> Luis de Onís</button>
+                            <button class="chip" data-profile="luis-carlos"><span class="chip-label">Child:</span> Luis Carlos</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Luis Carlos de Onís -->
+                <div class="profile-card" id="luis-carlos" role="tabpanel" aria-labelledby="tab-luis-carlos">
+                    <div class="profile-gen-tag">Generation III</div>
+                    <h2 class="profile-name">Luis Carlos de Onís</h2>
+                    <p class="profile-dates">c. 1815–? | Military officer</p>
+                    <p class="profile-role">Described as "Teniente de Infantería" (Infantry Lieutenant)</p>
+                    <span class="status-badge status-minimal">Minimal</span>
+
+                    <div class="profile-bio">
+                        <p>Luis Carlos de Onís is the least documented member of the direct line. Born around 1815, he served as a Teniente de Infantería (Infantry Lieutenant) in the Spanish military. He married a woman known only as "Sra. López" — her first name remains one of the open research questions in the family dossier.</p>
+                        <p>His importance is structural: he connects the diplomatic grandeur of Luis de Onís and Mauricio Carlos to the intellectual achievements of José María and Federico. The family's transition from diplomacy and military service to scholarship and academia occurred across his generation.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Infantry Lieutenant (Teniente de Infantería)</li>
+                            <li>Son of Mauricio Carlos de Onís</li>
+                            <li>Married "Sra. López" (first name unknown)</li>
+                            <li>Father of José María Onís López</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="mauricio-carlos"><span class="chip-label">Father:</span> Mauricio Carlos</button>
+                            <button class="chip" data-profile="jose-maria-lopez"><span class="chip-label">Child:</span> José María</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- José María Onís López -->
+                <div class="profile-card" id="jose-maria-lopez" role="tabpanel" aria-labelledby="tab-jose-maria-lopez">
+                    <div class="profile-gen-tag">Generation IV</div>
+                    <h2 class="profile-name">José María Onís López</h2>
+                    <p class="profile-dates">1848–1920 | Scholar and librarian</p>
+                    <p class="profile-role">Head Librarian and Archivist, University of Salamanca</p>
+                    <span class="status-badge status-moderate">Moderate</span>
+
+                    <div class="profile-bio">
+                        <p>José María Onís López studied Law and Philosophy at the prestigious Universidad Central de Madrid, equipping himself with the intellectual tools that would define his scholarly career. Throughout his professional life, he served as Head Librarian and Archivist of the University of Salamanca—an institution intimately connected to the de Onís family heritage for generations.</p>
+                        <p>In Salamanca, José María became a central figure in the city's intellectual life, forming a close personal friendship with Miguel de Unamuno, the philosopher, writer, and eventual Rector of the university. This friendship placed José María at the heart of one of Spain's most vibrant intellectual communities during the late 19th and early 20th centuries. The PARES archival record describes him as the "patriarca de la familia Onís"—the patriarch of the Onís family—suggesting deep respect for his role in preserving family memory and knowledge.</p>
+                        <p>Most significantly, José María's friendship with Unamuno created the intellectual world in which his son Federico would come of age. Federico's later extraordinary influence on Spanish and Latin American letters emerged directly from the environment that José María and Unamuno cultivated in Salamanca. In this sense, José María de Onís López was the generational bridge connecting the diplomatic legacy of Luis and Mauricio Carlos to the literary and cultural achievements of Federico and beyond.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Studied Law and Philosophy, Universidad Central de Madrid</li>
+                            <li>Head Librarian and Archivist, University of Salamanca</li>
+                            <li>Close friend of Miguel de Unamuno</li>
+                            <li>Described as "patriarca de la familia Onís"</li>
+                            <li>Father of Federico de Onís Sánchez</li>
+                            <li>Central figure in Salamanca intellectual community</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="federico-de-onis"><span class="chip-label">Child:</span> Federico de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Federico de Onís Sánchez -->
+                <div class="profile-card" id="federico-de-onis" role="tabpanel" aria-labelledby="tab-federico-de-onis">
+                    <div class="profile-gen-tag">Generation V</div>
+                    <h2 class="profile-name">Federico de Onís Sánchez</h2>
+                    <p class="profile-dates">1885–1966 | Scholar, publisher, and cultural bridge-builder</p>
+                    <p class="profile-role">Founder of Hispanic Studies in America</p>
+                    <span class="status-badge status-complete">Complete</span>
+
+                    <div class="profile-bio">
+                        <p>Federico de Onís Sánchez studied under two of Spain's greatest intellectuals: Miguel de Unamuno at the University of Salamanca and Ramón Menéndez Pidal in Madrid. These formative years in Spain's premier scholarly circles shaped his vision of what cultural and literary scholarship could achieve. In 1908, he married Andrea Rodríguez Bondía in Salamanca; they had three sons, José María, Federico Jr., and Arturo, establishing his first family roots.</p>
+                        <p>In 1916, at age 31, Federico was invited to Columbia University by President Nicholas Murray Butler to develop Spanish language and culture instruction. This invitation marked the beginning of his transformative work in America. He founded the Department of Spanish at Columbia in 1920, established the Instituto de las Españas—a pioneering center for Spanish and Latin American cultural exchange—and launched Revista Hispánica Moderna in 1934, which became one of the leading journals of its era. In 1927, he founded the Department of Hispanic Studies at the University of Puerto Rico, extending his influence across the Caribbean.</p>
+                        <p>Federico's most consequential act as a publisher came in 1922, when he published the first book of Gabriela Mistral, the Chilean poet. His recognition of Mistral's genius set in motion her rise to international prominence, culminating in her 1945 Nobel Prize in Literature—a trajectory that would have been unthinkable without Federico's early championing of her work. His scholarly network was extraordinary and unmatched: García Lorca, Antonio Machado, Juan Ramón Jiménez, Pedro Salinas, María Zambrano, Américo Castro, and countless other luminaries of the Hispanic world passed through his intellectual orbit.</p>
+                        <p>On August 20, 1924, he married Harriet Wishnieff, a woman of equal intellectual stature who would become his partner in all things. Together, they created a remarkable intellectual household and partnership that spanned decades. Jorge Guillén, the poet, described him as "un individuo individualísimo con furia diferencial"—an exceptionally individual person with a differential fury—capturing Federico's passionate and distinctive nature. Juan Ramón Jiménez, another contemporary, wrote: "áspero y dulce como un paisaje castellano de piedra y cielo"—harsh and sweet like a Castilian landscape of stone and sky—a poetic characterization of his complex personality. After the Spanish Civil War, Federico never returned to Spain, instead building a life of extraordinary cultural significance in the United States and Puerto Rico. A street in Salamanca bears his name, honoring his immense contributions to Spanish cultural heritage.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Studied under Unamuno and Menéndez Pidal</li>
+                            <li>Married Andrea Rodríguez Bondía (1908)</li>
+                            <li>Columbia University invitation (1916)</li>
+                            <li>Founded Department of Spanish at Columbia (1920)</li>
+                            <li>Instituto de las Españas (1920)</li>
+                            <li>Published Gabriela Mistral's first book (1922)</li>
+                            <li>Revista Hispánica Moderna (1934)</li>
+                            <li>Department of Hispanic Studies, University of Puerto Rico (1927)</li>
+                            <li>Married Harriet Wishnieff (1924)</li>
+                            <li>Intellectual circle: Lorca, Machado, JR Jiménez, Salinas, Zambrano</li>
+                            <li>Street in Salamanca named after him</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="jose-maria-lopez"><span class="chip-label">Parent:</span> José María Onís López</button>
+                            <button class="chip" data-profile="andrea-rodriguez"><span class="chip-label">Spouse:</span> Andrea Rodríguez</button>
+                            <button class="chip" data-profile="harriet-wishnieff"><span class="chip-label">Spouse:</span> Harriet Wishnieff</button>
+                            <button class="chip" data-profile="jose-maria-bondia"><span class="chip-label">Child:</span> José María (Andrea)</button>
+                            <button class="chip" data-profile="federico-jr"><span class="chip-label">Child:</span> Federico Jr. (Andrea)</button>
+                            <button class="chip" data-profile="arturo-de-onis"><span class="chip-label">Child:</span> Arturo (Andrea)</button>
+                            <button class="chip" data-profile="juan-de-onis"><span class="chip-label">Child:</span> Juan (Harriet)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Harriet Wishnieff de Onís -->
+                <div class="profile-card" id="harriet-wishnieff" role="tabpanel" aria-labelledby="tab-harriet-wishnieff">
+                    <div class="profile-gen-tag">Generation V Spouse</div>
+                    <h2 class="profile-name">Harriet Wishnieff de Onís</h2>
+                    <p class="profile-dates">1896?–1969 | Translator and literary tastemaker</p>
+                    <p class="profile-role">Architect of Latin American literature in English</p>
+                    <span class="status-badge status-complete">Complete</span>
+
+                    <div class="profile-bio">
+                        <p>Harriet Wishnieff was born in small-town Illinois to a family with modest means. Seeking broader horizons, she moved to New York to study foreign languages at Barnard College, graduating in 1916—the same year that Federico de Onís arrived at Columbia to begin his transformative work. After initially working as a secretary for the renowned dancer Isadora Duncan, Harriet pursued graduate work in Spanish at Columbia, establishing herself within the very intellectual circles that Federico was creating.</p>
+                        <p>Between 1930 and 1969, Harriet published approximately 40 book translations from Spanish and Portuguese into English, making her the first truly prolific translator of Latin American literature into the English-speaking world. Her work was foundational: she introduced English readers to the riches of Spanish and Portuguese literary traditions at a time when such literature was virtually unknown in America. Chilean writer José Donoso said of her that she "controlled the sluices of the circulation of Latin American literature in the United States and by means of the United States throughout the whole world." Few individuals have wielded such quiet but decisive influence over literary culture.</p>
+                        <p>In 1952, at the height of her powers as a translator and reader of manuscripts, Harriet sent a volume of stories by Jorge Luis Borges to the publisher Knopf, enthusiastically calling his work "superb." Knopf's editor declined the submission, declaring that the stories could not be sold to the American public. This judgment would prove spectacularly and embarrassingly wrong—Borges would go on to become one of the most celebrated authors of the 20th century. Harriet's literary instinct was prescient, ahead of the market by years.</p>
+                        <p>Despite her enormous cultural influence, Harriet's material compensation was minimal. A 1964 agreement shows she was paid a paltry $500 per year to evaluate manuscripts for Knopf. For her translation of Fernando Ortiz's magisterial Cuban Counterpoint—a work comprising nearly 105,000 words of dense scholarship—she received $725 in total, less than a penny per word. Federico called her "Jarrie," and she called him "Federrico." Their partnership was one of equals, a union of two extraordinary minds that together shaped the relationship between Spanish and Latin American culture and the English-speaking world.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Born in small-town Illinois</li>
+                            <li>Barnard College (1916)</li>
+                            <li>Secretary to dancer Isadora Duncan</li>
+                            <li>Graduate work in Spanish, Columbia University</li>
+                            <li>Approximately 40 book translations (1930–1969)</li>
+                            <li>First prolific translator of Latin American literature</li>
+                            <li>Recommended Jorge Luis Borges to Knopf (1952)</li>
+                            <li>Translated Fernando Ortiz's Cuban Counterpoint (1947)</li>
+                            <li>Translated Alejo Carpentier's The Lost Steps (1956)</li>
+                            <li>Married Federico de Onís (1924)</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="federico-de-onis"><span class="chip-label">Spouse:</span> Federico de Onís</button>
+                            <button class="chip" data-profile="juan-de-onis"><span class="chip-label">Child:</span> Juan de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- José María de Onís Bondía -->
+                <div class="profile-card" id="jose-maria-bondia" role="tabpanel" aria-labelledby="tab-jose-maria-bondia">
+                    <div class="profile-gen-tag">Generation VI</div>
+                    <h2 class="profile-name">José de Onís</h2>
+                    <p class="profile-dates">January 28, 1911–September 10, 2003 | Professor</p>
+                    <p class="profile-role">Department of Spanish and Portuguese, University of Colorado Boulder</p>
+                    <span class="status-badge status-complete">Complete</span>
+
+                    <div class="profile-bio">
+                        <p>José de Onís was born on January 28, 1911, in Oviedo, Asturias, Spain, to Federico de Onís and Andrea Rodríguez Bondía. He came to the United States and built a distinguished academic career at the University of Colorado Boulder in the Department of Spanish and Portuguese. Over his long tenure, he became one of the university's most respected scholars and teachers. His contributions to the institution were so significant that the University of Colorado Boulder established the Jose De Onis Achievement Award, which continues to bear his name and honors outstanding students and faculty in his memory.</p>
+                        <p>José de Onís was a prolific and influential scholar whose work shaped the study of Hispanic literature and culture in America. His major works include The United States as Seen by Spanish American Writers, 1776–1890 (Hispanic Institute, 1952), which has been published in 26 editions and is held by 539 libraries worldwide, making it one of the most widely circulated works on the subject. He also edited The Hispanic Contribution to the State of Colorado (Westview Press, 1976), a comprehensive work with 14 chapters by leading scholars examining Hispanic heritage in the region. Additional significant publications include Las Misiones Españolas en los Estados Unidos (University of Colorado, 1958–59), Melville y el Mundo Hispánico: Nueve Conferencias y un Prólogo (1974), and La Lengua Popular Madrileña en la Obra de Pérez Galdós (1949). The Spanish-language edition of his major work, Los Estados Unidos Vistos por Escritores Hispanoamericanos (1956), is held by 134 libraries and reflects the international recognition of his scholarship.</p>
+                        <p>During World War II, José de Onís served in military intelligence, contributing to the American war effort during the global conflict. His wartime experiences were later preserved in The Eagle and the Sparrow: The Second World War Memoirs of José de Onís, told to his grandson Louis Gray Kunkel, which provides a personal account of his service and the era. José was deeply invested in preserving the history of his family and the broader Hispanic heritage in America. He passed away on September 10, 2003, in Bozeman, Montana, leaving behind a legacy as both an accomplished scholar and a devoted family historian whose work continues to influence the study of Hispanic culture and literature in America.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Born January 28, 1911 in Oviedo, Asturias, Spain</li>
+                            <li>Died September 10, 2003 in Bozeman, Montana</li>
+                            <li>Professor, Department of Spanish & Portuguese, University of Colorado Boulder</li>
+                            <li>Jose De Onis Achievement Award at CU Boulder named in his honor</li>
+                            <li>The United States as Seen by Spanish American Writers (1952) — 26 editions, 539 libraries</li>
+                            <li>The Hispanic Contribution to the State of Colorado (1976) — 14 chapters by leading scholars</li>
+                            <li>Las Misiones Españolas en los Estados Unidos (1958–59)</li>
+                            <li>Melville y el Mundo Hispánico: Nueve Conferencias y un Prólogo (1974)</li>
+                            <li>La Lengua Popular Madrileña en la Obra de Pérez Galdós (1949)</li>
+                            <li>The Eagle and the Sparrow — WWII memoirs, told to grandson Louis Gray Kunkel</li>
+                            <li>Served in military intelligence during World War II</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="federico-de-onis"><span class="chip-label">Parent:</span> Federico de Onís</button>
+                            <button class="chip" data-profile="andrea-rodriguez"><span class="chip-label">Parent:</span> Andrea Rodríguez</button>
+                            <button class="chip" data-profile="federico-jr"><span class="chip-label">Sibling:</span> Federico Jr.</button>
+                            <button class="chip" data-profile="arturo-de-onis"><span class="chip-label">Sibling:</span> Arturo</button>
+                            <button class="chip" data-profile="juan-de-onis"><span class="chip-label">Sibling:</span> Juan de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Andrea Rodríguez Bondía -->
+                <div class="profile-card" id="andrea-rodriguez" role="tabpanel" aria-labelledby="tab-andrea-rodriguez">
+                    <div class="profile-gen-tag">Spouse — Generation V</div>
+                    <h2 class="profile-name">Andrea Rodríguez Bondía</h2>
+                    <p class="profile-dates">c. 1880s–? | First wife of Federico de Onís</p>
+                    <span class="status-badge status-minimal">Minimal</span>
+
+                    <div class="profile-bio">
+                        <p>Andrea Rodríguez Bondía married Federico de Onís in Salamanca in 1908. They had three sons: José María (1911–2003), Federico Jr., and Arturo. When Federico accepted his position at Columbia University in 1916 and chose to remain in New York, Andrea stayed in Spain with their children.</p>
+                        <p>Her life after Federico's departure is largely undocumented. A letter from María de Unamuno (Miguel de Unamuno's daughter) references "Arturo, hijo pequeño de Federico de Onís, que permaneció en España con su madre" — confirming that Andrea raised the children in Spain. Her patronymic "Bondía" appears in her son José María's official surname (Onís Bondía), per Spanish naming convention.</p>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="federico-de-onis"><span class="chip-label">Spouse:</span> Federico de Onís</button>
+                            <button class="chip" data-profile="jose-maria-bondia"><span class="chip-label">Child:</span> José María</button>
+                            <button class="chip" data-profile="federico-jr"><span class="chip-label">Child:</span> Federico Jr.</button>
+                            <button class="chip" data-profile="arturo-de-onis"><span class="chip-label">Child:</span> Arturo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Federico de Onís Jr. -->
+                <div class="profile-card" id="federico-jr" role="tabpanel" aria-labelledby="tab-federico-jr">
+                    <div class="profile-gen-tag">Generation VI</div>
+                    <h2 class="profile-name">Federico de Onís (hijo)</h2>
+                    <p class="profile-dates">1909–1967 | Son of Federico and Andrea</p>
+                    <span class="status-badge status-minimal">Minimal</span>
+
+                    <div class="profile-bio">
+                        <p>Federico de Onís Jr. was the eldest son of Federico de Onís and Andrea Rodríguez Bondía, born in 1909. He remained in Spain with his mother and brothers after Federico's departure for Columbia University in 1916. He died in 1967, just a year after his father passed away. Further details about his life, career, and whether he had descendants remain pending confirmation. If he had children, there may be descendants in Spain with little or no contact with the American branch of the family.</p>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="federico-de-onis"><span class="chip-label">Parent:</span> Federico de Onís</button>
+                            <button class="chip" data-profile="andrea-rodriguez"><span class="chip-label">Parent:</span> Andrea Rodríguez</button>
+                            <button class="chip" data-profile="jose-maria-bondia"><span class="chip-label">Sibling:</span> José María</button>
+                            <button class="chip" data-profile="arturo-de-onis"><span class="chip-label">Sibling:</span> Arturo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arturo de Onís -->
+                <div class="profile-card" id="arturo-de-onis" role="tabpanel" aria-labelledby="tab-arturo-de-onis">
+                    <div class="profile-gen-tag">Generation VI</div>
+                    <h2 class="profile-name">Arturo de Onís</h2>
+                    <p class="profile-dates">Dates unknown | Son of Federico and Andrea</p>
+                    <span class="status-badge status-minimal">Minimal</span>
+
+                    <div class="profile-bio">
+                        <p>Arturo de Onís was the youngest son of Federico de Onís and Andrea Rodríguez Bondía. He remained in Spain with his mother when Federico departed for Columbia University. His existence was confirmed through a letter from María de Unamuno, discovered in the Salamanca exhibition materials, which describes him as "hijo pequeño de Federico de Onís, que permaneció en España con su madre."</p>
+                        <p>Almost nothing else is known about Arturo — his birth and death dates, career, and whether he had descendants remain open research questions. If he had children, there may be a branch of the de Onís family in Spain that has had little or no contact with the American branch.</p>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="federico-de-onis"><span class="chip-label">Parent:</span> Federico de Onís</button>
+                            <button class="chip" data-profile="jose-maria-bondia"><span class="chip-label">Sibling:</span> José María</button>
+                            <button class="chip" data-profile="federico-jr"><span class="chip-label">Sibling:</span> Federico Jr.</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Juan de Onís -->
+                <div class="profile-card" id="juan-de-onis" role="tabpanel" aria-labelledby="tab-juan-de-onis">
+                    <div class="profile-gen-tag">Generation VI</div>
+                    <h2 class="profile-name">Juan de Onís</h2>
+                    <p class="profile-dates">1927–2019 | Foreign correspondent and author</p>
+                    <p class="profile-role">New York Times and Los Angeles Times bureau chief</p>
+                    <span class="status-badge status-moderate">Moderate</span>
+
+                    <div class="profile-bio">
+                        <p>Juan de Onís was the son of Federico de Onís and Harriet Wishnieff de Onís, born into one of the most intellectually distinguished households of the 20th century. From his parents, he inherited both a deep commitment to understanding the Hispanic world and an intellectual rigor that would define his career in journalism and letters.</p>
+                        <p>For 26 years, Juan served as a foreign correspondent and bureau chief for two of America's most prestigious newspapers: the New York Times and the Los Angeles Times. His assignments took him across the globe—to Latin America (particularly Brazil, where he developed a deep expertise), the Middle East, Africa, Washington, and the United Nations. Most significantly, Juan was based in Buenos Aires during the era of Argentine military dictatorships, providing eyewitness reporting of some of Latin America's most turbulent years. His experiences in this period profoundly shaped his son Paco's worldview and his commitment to documenting human rights abuses through documentary media.</p>
+                        <p>Beyond his journalism, Juan established himself as a scholar and translator of considerable note. He authored The Green Cathedral: Sustainable Development of Amazonia (Oxford University Press, 1992), a work that demonstrated his ongoing intellectual engagement with Latin American issues decades after his reporting career had flourished. He co-authored The Alliance That Lost Its Way (1979), analyzing the evolution and failure of the Alliance for Progress. As a translator, he rendered José Martí's seminal essay "Nuestra América" into English, making the Cuban writer's thought accessible to English-speaking audiences.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Son of Federico de Onís and Harriet Wishnieff</li>
+                            <li>Foreign correspondent (26 years)</li>
+                            <li>New York Times and Los Angeles Times</li>
+                            <li>Based in Buenos Aires during military era</li>
+                            <li>Covered Latin America, Middle East, Africa, UN</li>
+                            <li>The Green Cathedral: Sustainable Development of Amazonia (1992)</li>
+                            <li>The Alliance That Lost Its Way, co-author (1979)</li>
+                            <li>Translator of José Martí's Nuestra América</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="federico-de-onis"><span class="chip-label">Parents:</span> Federico & Harriet</button>
+                            <button class="chip" data-profile="jose-maria-bondia"><span class="chip-label">Sibling:</span> José María</button>
+                            <button class="chip" data-profile="paco-de-onis"><span class="chip-label">Child:</span> Paco de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paco de Onís -->
+                <div class="profile-card" id="paco-de-onis" role="tabpanel" aria-labelledby="tab-paco-de-onis">
+                    <div class="profile-gen-tag">Generation VII</div>
+                    <h2 class="profile-name">Paco de Onís</h2>
+                    <p class="profile-dates">b. 1954 | Documentary filmmaker and human rights advocate</p>
+                    <p class="profile-role">Executive Director and Producer, Skylight</p>
+                    <span class="status-badge status-complete">Complete</span>
+
+                    <div class="profile-bio">
+                        <p>Paco de Onís—whose given name is Juan de Onís, honoring his grandfather—grew up in Argentina and Brazil during some of the darkest decades of Latin American history: the era of military dictatorships. His father Juan de Onís, as a foreign correspondent based in Buenos Aires, documented these upheavals for the New York Times, bringing the realities of political oppression and state violence into American homes. Young Paco absorbed these experiences directly, absorbing his father's commitment to bearing witness to injustice and to the power of storytelling to expose truth. Paco was first married to Jody Hagberg, with whom he had his son Alejandro.</p>
+                        <p>In 1981, Paco co-founded Skylight, a Brooklyn-based human rights media organization, with filmmakers Pamela Yates and Peter Kinoy. Skylight emerged from a simple but powerful conviction: that documentary media could be a tool of justice, documenting atrocities and human rights abuses for posterity and for use in legal proceedings. Paco and Pamela's partnership became one of the most consequential collaborations in human rights documentary cinema. His marriage to Pamela Yates deepened this creative and professional synergy.</p>
+                        <p>Over decades, Paco's producing credits expanded to include films that became landmarks of documentary cinema. Granito: How to Nail a Dictator, which premiered at Sundance in 2011, was developed into a unique hybrid work that combined documentary testimony with actual forensic evidence—later used in the genocide trial of Guatemalan dictator Efraín Ríos Montt. The film 500 Years premiered at Sundance in 2017, examining quincentennial narratives of conquest and resistance. Paco also produced State of Fear and most recently Borderland (2024). His Academy Award came in 1985, when Skylight produced Witness to War, a collaboration that certified documentary cinema's power to effect political change.</p>
+                        <p>Paco's linguistic abilities—Spanish, Portuguese, English, Italian, and French—gave him access to the full spectrum of the hemisphere's cultures and political discourses. He also served as Executive Producer of documentary work for PBS (with Bill Moyers) and National Geographic, expanding Skylight's reach and impact. In recent years, Paco co-created SolidariLabs, further extending his commitment to using media and technology for human rights advocacy. Like his grandfather Federico and his father Juan, Paco de Onís has dedicated his life to bearing witness to the Hispanic world and to translating its urgencies for global audiences.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Given name: Juan de Onís</li>
+                            <li>Grew up in Argentina and Brazil</li>
+                            <li>Co-founded Skylight (1981)</li>
+                            <li>Partners: Pamela Yates, Peter Kinoy</li>
+                            <li>Academy Award (1985) – Witness to War</li>
+                            <li>Granito premiered at Sundance (2011)</li>
+                            <li>500 Years premiered at Sundance (2017)</li>
+                            <li>Produced State of Fear and Borderland (2024)</li>
+                            <li>PBS producer (Bill Moyers) and National Geographic</li>
+                            <li>Multilingual: Spanish, Portuguese, English, Italian, French</li>
+                            <li>Co-created SolidariLabs</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="juan-de-onis"><span class="chip-label">Parent:</span> Juan de Onís</button>
+                            <button class="chip" data-profile="jody-hagberg"><span class="chip-label">First spouse:</span> Jody Hagberg</button>
+                            <button class="chip" data-profile="pamela-yates"><span class="chip-label">Second spouse:</span> Pamela Yates</button>
+                            <button class="chip" data-profile="alejandro-de-onis"><span class="chip-label">Child:</span> Alejandro de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pamela Yates -->
+                <div class="profile-card" id="pamela-yates" role="tabpanel" aria-labelledby="tab-pamela-yates">
+                    <div class="profile-gen-tag">Generation VII Spouse</div>
+                    <h2 class="profile-name">Pamela Yates</h2>
+                    <p class="profile-dates">b. 1952 | Academy Award-winning documentary filmmaker</p>
+                    <p class="profile-role">Second wife of Paco de Onís; step-mother to Alejandro</p>
+                    <span class="status-badge status-complete">Complete</span>
+
+                    <div class="profile-bio">
+                        <p>Pamela Yates was born in Appalachian Pennsylvania to a family of modest means, but she left her hometown at age 16, driven by ambition and creative vision, for New York City. There she found her calling in documentary cinema—a medium through which she has become one of the most consequential human rights filmmakers of the late 20th and early 21st centuries. Her trajectory from small-town Pennsylvania to the heights of American cinema represents both personal determination and the transformative power of the documentary form. Paco's second wife and step-mother to Alejandro de Onís, she has been his creative and professional partner for over three decades.</p>
+                        <p>Pamela's directorial and producing work has earned her the highest honors in cinema and journalism. She is a Guggenheim Fellow, marking her recognition by America's most prestigious foundation for creative excellence. In 1985, she received the Academy Award as Executive Producer of Witness to War, validating the power of documentary cinema to effect political change. She has received an Emmy Award for her work in television documentary, and the Overseas Press Club Award for State of Fear (2006), a film that documented extrajudicial killings in the Philippines.</p>
+                        <p>Pamela's most innovative work may be her direction of Granito: How to Nail a Dictator. This extraordinary film combined documentary testimony with actual forensic evidence—photographs, documents, and eyewitness accounts—that would later be used as evidence in the genocide trial of Guatemalan dictator Efraín Ríos Montt. The film thus became not merely a document of atrocity, but a tool of justice, demonstrating the unique capacity of documentary cinema to affect legal and political accountability. Most recently, she directed Borderland: The Line Within (2024), continuing her commitment to documenting the human dimensions of political boundaries and state violence.</p>
+                        <p>For over three decades, Pamela and Paco have been creative and professional partners at Skylight, a partnership of remarkable synergy and productivity. In 2024, she received a fellowship from the Poynter Institute at Yale University, recognizing her ongoing contributions to documentary journalism and human rights cinema. Through Skylight, Pamela and Paco have created a model of independent media that remains uncompromising in its commitment to truth and justice.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Born in Appalachian Pennsylvania</li>
+                            <li>Left home at 16 for New York City</li>
+                            <li>Guggenheim Fellow</li>
+                            <li>Academy Award (1985) – Witness to War</li>
+                            <li>Emmy Award</li>
+                            <li>Overseas Press Club Award – State of Fear (2006)</li>
+                            <li>Granito: How to Nail a Dictator (directed, 2011)</li>
+                            <li>Granito used as evidence in Ríos Montt genocide trial</li>
+                            <li>Borderland: The Line Within (directed, 2024)</li>
+                            <li>Co-founder Skylight (1981)</li>
+                            <li>Poynter Fellowship, Yale (2024)</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="paco-de-onis"><span class="chip-label">Spouse:</span> Paco de Onís</button>
+                            <button class="chip" data-profile="alejandro-de-onis"><span class="chip-label">Step-child:</span> Alejandro de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jody Hagberg -->
+                <div class="profile-card" id="jody-hagberg" role="tabpanel" aria-labelledby="tab-jody-hagberg">
+                    <div class="profile-gen-tag">Generation VII Spouse</div>
+                    <h2 class="profile-name">Jody Hagberg</h2>
+                    <p class="profile-dates">Unknown | First wife of Paco de Onís</p>
+                    <span class="status-badge status-minimal">Minimal</span>
+
+                    <div class="profile-bio">
+                        <p>Jody Hagberg was Paco de Onís's first wife and mother of Alejandro de Onís.</p>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="paco-de-onis"><span class="chip-label">Spouse:</span> Paco de Onís</button>
+                            <button class="chip" data-profile="alejandro-de-onis"><span class="chip-label">Child:</span> Alejandro de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alejandro de Onís -->
+                <div class="profile-card" id="alejandro-de-onis" role="tabpanel" aria-labelledby="tab-alejandro-de-onis">
+                    <div class="profile-gen-tag">Generation VIII</div>
+                    <h2 class="profile-name">Alejandro de Onís</h2>
+                    <p class="profile-dates">Contemporary | Communications and philanthropy</p>
+                    <p class="profile-role">Vice President of Communications, Knight Foundation</p>
+                    <span class="status-badge status-minimal">Placeholder</span>
+
+                    <div class="profile-bio">
+                        <p>Alejandro de Onís represents the eighth generation of the de Onís family, carrying forward a remarkable multi-generational legacy of engagement with the Hispanic world, the pursuit of cultural understanding, and the power of storytelling and institutional change. As Vice President of Communications at the Knight Foundation, one of America's leading philanthropic institutions focused on journalism, media innovation, and the public interest, Alejandro works at the intersection of technology, media, and social impact.</p>
+                        <p>In this role, Alejandro shapes institutional communications and strategic philanthropy for an organization that deploys hundreds of millions of dollars annually to strengthen journalism, civic engagement, and public discourse. Like his grandfather Juan de Onís the foreign correspondent, like his father Paco de Onís the documentary filmmaker, and like his great-grandfather Federico de Onís the scholar and cultural bridge-builder, Alejandro is engaged with the fundamental question: How can institutions, media, and storytelling serve the public good? His work continues the family's long tradition of mediating between cultures, institutions, and publics to advance justice and understanding.</p>
+                    </div>
+
+                    <div class="key-facts">
+                        <h4>Key Facts</h4>
+                        <ul>
+                            <li>Vice President of Communications, Knight Foundation</li>
+                            <li>Focuses on technology, media, and philanthropy</li>
+                            <li>Continues family legacy of public storytelling</li>
+                        </ul>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="paco-de-onis"><span class="chip-label">Parent:</span> Paco de Onís</button>
+                            <button class="chip" data-profile="jody-hagberg"><span class="chip-label">Parent:</span> Jody Hagberg</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>A living document — last updated March 2026</p>
+        <p>Built by the de Onís family</p>
+    </footer>
+
+    <script>
+        // Initialize the tabbed interface
+        const personTabs = document.querySelectorAll('[data-profile]');
+        const profileCards = document.querySelectorAll('.profile-card');
+
+        // Get initial profile from URL hash or default to Luis de Onís
+        function getInitialProfile() {
+            const hash = window.location.hash.slice(1);
+            if (hash && document.getElementById(hash)) {
+                return hash;
+            }
+            return 'luis-de-onis';
+        }
+
+        function showProfile(profileId) {
+            // Hide all profiles
+            profileCards.forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Deactivate all tabs
+            personTabs.forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
+
+            // Show selected profile
+            const selectedProfile = document.getElementById(profileId);
+            if (selectedProfile) {
+                selectedProfile.classList.add('active');
+
+                // Activate corresponding tab
+                const selectedTab = document.querySelector(`[data-profile="${profileId}"]`);
+                if (selectedTab) {
+                    selectedTab.classList.add('active');
+                    selectedTab.setAttribute('aria-selected', 'true');
+                }
+
+                // Update URL hash
+                window.location.hash = profileId;
+
+                // Scroll to top of profile content
+                selectedProfile.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Add click handlers to tabs
+        personTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                showProfile(tab.dataset.profile);
+            });
+        });
+
+        // Add click handlers to connection chips
+        document.querySelectorAll('.connection-chips .chip[data-profile]').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                e.preventDefault();
+                showProfile(chip.dataset.profile);
+            });
+        });
+
+        // Handle hash changes
+        window.addEventListener('hashchange', () => {
+            const profileId = window.location.hash.slice(1);
+            if (profileId) {
+                showProfile(profileId);
+            }
+        });
+
+        // Initialize with default profile on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialProfile = getInitialProfile();
+            showProfile(initialProfile);
+        });
+    </script>
+</body>
+</html>
