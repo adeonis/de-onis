@@ -168,6 +168,59 @@
             border-color: white;
         }
 
+        /* Spouse tabs: visually separated */
+        .person-tab.spouse-tab {
+            padding-left: 1.75rem;
+            font-size: 0.8125rem;
+            opacity: 0.8;
+            margin-bottom: 0.25rem;
+        }
+
+        .person-tab.spouse-tab .person-tab-name {
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        .person-tab.spouse-tab.active {
+            opacity: 1;
+        }
+
+        /* Spouse subsection within profile */
+        .spouse-subsection {
+            max-width: var(--prose-max);
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .spouse-subsection h3 {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 0.25rem;
+        }
+
+        .spouse-subsection .spouse-sub-dates {
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            font-weight: 300;
+            margin-bottom: 0.75rem;
+        }
+
+        .spouse-subsection .spouse-sub-role {
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            color: var(--color-accent-light);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .spouse-subsection .profile-bio p {
+            font-size: 0.875rem;
+        }
+
         .person-tab-info {
             flex: 1;
             min-width: 0;
@@ -553,14 +606,14 @@
                             <span class="person-tab-dates">1885–1966</span>
                         </div>
                     </button>
-                    <button class="person-tab" data-profile="harriet-wishnieff" role="tab" aria-selected="false">
+                    <button class="person-tab spouse-tab" data-profile="harriet-wishnieff" role="tab" aria-selected="false">
                         <div class="person-dot spouse"></div>
                         <div class="person-tab-info">
                             <span class="person-tab-name">Harriet Wishnieff</span>
                             <span class="person-tab-dates">1896?–1969</span>
                         </div>
                     </button>
-                    <button class="person-tab" data-profile="andrea-rodriguez" role="tab" aria-selected="false">
+                    <button class="person-tab spouse-tab" data-profile="andrea-rodriguez" role="tab" aria-selected="false">
                         <div class="person-dot spouse"></div>
                         <div class="person-tab-info">
                             <span class="person-tab-name">Andrea Rodríguez</span>
@@ -612,14 +665,14 @@
                             <span class="person-tab-dates">b. 1954</span>
                         </div>
                     </button>
-                    <button class="person-tab" data-profile="jody-hagberg" role="tab" aria-selected="false">
+                    <button class="person-tab spouse-tab" data-profile="jody-hagberg" role="tab" aria-selected="false">
                         <div class="person-dot spouse"></div>
                         <div class="person-tab-info">
                             <span class="person-tab-name">Jody Hagberg</span>
                             <span class="person-tab-dates">Unknown</span>
                         </div>
                     </button>
-                    <button class="person-tab" data-profile="pamela-yates" role="tab" aria-selected="false">
+                    <button class="person-tab spouse-tab" data-profile="pamela-yates" role="tab" aria-selected="false">
                         <div class="person-dot spouse"></div>
                         <div class="person-tab-info">
                             <span class="person-tab-name">Pamela Yates</span>
@@ -636,6 +689,13 @@
                         <div class="person-tab-info">
                             <span class="person-tab-name">Alejandro de Onís</span>
                             <span class="person-tab-dates">Contemporary</span>
+                        </div>
+                    </button>
+                    <button class="person-tab" data-profile="camila-de-onis" role="tab" aria-selected="false">
+                        <div class="person-dot direct"></div>
+                        <div class="person-tab-info">
+                            <span class="person-tab-name">Camila de Onís</span>
+                            <span class="person-tab-dates">b. 1983</span>
                         </div>
                     </button>
                 </div>
@@ -823,6 +883,28 @@
                             <button class="chip" data-profile="federico-jr"><span class="chip-label">Child:</span> Federico Jr. (Andrea)</button>
                             <button class="chip" data-profile="arturo-de-onis"><span class="chip-label">Child:</span> Arturo (Andrea)</button>
                             <button class="chip" data-profile="juan-de-onis"><span class="chip-label">Child:</span> Juan (Harriet)</button>
+                        </div>
+                    </div>
+
+                    <!-- Spouse: Harriet Wishnieff -->
+                    <div class="spouse-subsection">
+                        <h3>Harriet Wishnieff de Onís</h3>
+                        <p class="spouse-sub-dates">1896?–1969 | Translator and literary tastemaker</p>
+                        <p class="spouse-sub-role">Architect of Latin American literature in English</p>
+                        <div class="profile-bio">
+                            <p>Harriet Wishnieff was born in small-town Illinois to a family with modest means. Seeking broader horizons, she moved to New York to study foreign languages at Barnard College, graduating in 1916—the same year that Federico de Onís arrived at Columbia to begin his transformative work. After initially working as a secretary for the renowned dancer Isadora Duncan, Harriet pursued graduate work in Spanish at Columbia, establishing herself within the very intellectual circles that Federico was creating.</p>
+                            <p>Between 1930 and 1969, Harriet published approximately 40 book translations from Spanish and Portuguese into English, making her the first truly prolific translator of Latin American literature into the English-speaking world. Her work was foundational: she introduced English readers to the riches of Spanish and Portuguese literary traditions at a time when such literature was virtually unknown in America. Chilean writer José Donoso said of her that she "controlled the sluices of the circulation of Latin American literature in the United States and by means of the United States throughout the whole world." Few individuals have wielded such quiet but decisive influence over literary culture.</p>
+                            <p>In 1952, at the height of her powers as a translator and reader of manuscripts, Harriet sent a volume of stories by Jorge Luis Borges to the publisher Knopf, enthusiastically calling his work "superb." Knopf's editor declined the submission, declaring that the stories could not be sold to the American public. This judgment would prove spectacularly and embarrassingly wrong—Borges would go on to become one of the most celebrated authors of the 20th century. Harriet's literary instinct was prescient, ahead of the market by years.</p>
+                            <p>Despite her enormous cultural influence, Harriet's material compensation was minimal. A 1964 agreement shows she was paid a paltry $500 per year to evaluate manuscripts for Knopf. For her translation of Fernando Ortiz's magisterial Cuban Counterpoint—a work comprising nearly 105,000 words of dense scholarship—she received $725 in total, less than a penny per word. Federico called her "Jarrie," and she called him "Federrico." Their partnership was one of equals, a union of two extraordinary minds that together shaped the relationship between Spanish and Latin American culture and the English-speaking world.</p>
+                        </div>
+                    </div>
+
+                    <!-- Spouse: Andrea Rodríguez -->
+                    <div class="spouse-subsection">
+                        <h3>Andrea Rodríguez Bondía</h3>
+                        <p class="spouse-sub-dates">c. 1880s–? | First wife of Federico de Onís</p>
+                        <div class="profile-bio">
+                            <p>Andrea Rodríguez Bondía married Federico de Onís in 1908 in Salamanca. Together they had three sons—José María, Federico Jr., and Arturo—establishing his first family roots before his move to America.</p>
                         </div>
                     </div>
                 </div>
@@ -1054,6 +1136,29 @@
                             <button class="chip" data-profile="jody-hagberg"><span class="chip-label">First spouse:</span> Jody Hagberg</button>
                             <button class="chip" data-profile="pamela-yates"><span class="chip-label">Second spouse:</span> Pamela Yates</button>
                             <button class="chip" data-profile="alejandro-de-onis"><span class="chip-label">Child:</span> Alejandro de Onís</button>
+                            <button class="chip" data-profile="camila-de-onis"><span class="chip-label">Child:</span> Camila de Onís</button>
+                        </div>
+                    </div>
+
+                    <!-- Spouse: Pamela Yates -->
+                    <div class="spouse-subsection">
+                        <h3>Pamela Yates</h3>
+                        <p class="spouse-sub-dates">b. 1952 | Academy Award-winning documentary filmmaker</p>
+                        <p class="spouse-sub-role">Co-founder of Skylight; Paco's creative and professional partner</p>
+                        <div class="profile-bio">
+                            <p>Pamela Yates was born in Appalachian Pennsylvania to a family of modest means, but she left her hometown at age 16, driven by ambition and creative vision, for New York City. There she found her calling in documentary cinema—a medium through which she has become one of the most consequential human rights filmmakers of the late 20th and early 21st centuries. Paco's second wife and step-mother to Alejandro de Onís, she has been his creative and professional partner for over three decades.</p>
+                            <p>Pamela's directorial and producing work has earned her the highest honors in cinema and journalism. She is a Guggenheim Fellow, marking her recognition by America's most prestigious foundation for creative excellence. In 1985, she received the Academy Award as Executive Producer of Witness to War. She has received an Emmy Award for her work in television documentary, and the Overseas Press Club Award for State of Fear (2006).</p>
+                            <p>Pamela's most innovative work may be her direction of Granito: How to Nail a Dictator. This extraordinary film combined documentary testimony with actual forensic evidence that would later be used in the genocide trial of Guatemalan dictator Efraín Ríos Montt. Most recently, she directed Borderland: The Line Within (2024), continuing her commitment to documenting the human dimensions of political boundaries and state violence.</p>
+                            <p>For over three decades, Pamela and Paco have been creative and professional partners at Skylight, a partnership of remarkable synergy and productivity. In 2024, she received a fellowship from the Poynter Institute at Yale University.</p>
+                        </div>
+                    </div>
+
+                    <!-- Spouse: Jody Hagberg -->
+                    <div class="spouse-subsection">
+                        <h3>Jody Hagberg</h3>
+                        <p class="spouse-sub-dates">First wife of Paco de Onís</p>
+                        <div class="profile-bio">
+                            <p>Jody Hagberg was Paco de Onís's first wife and mother of Alejandro de Onís.</p>
                         </div>
                     </div>
                 </div>
@@ -1146,6 +1251,27 @@
                         <div class="connection-chips">
                             <button class="chip" data-profile="paco-de-onis"><span class="chip-label">Parent:</span> Paco de Onís</button>
                             <button class="chip" data-profile="jody-hagberg"><span class="chip-label">Parent:</span> Jody Hagberg</button>
+                            <button class="chip" data-profile="camila-de-onis"><span class="chip-label">Sibling:</span> Camila de Onís</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camila de Onís -->
+                <div class="profile-card" id="camila-de-onis" role="tabpanel" aria-labelledby="tab-camila-de-onis">
+                    <div class="profile-gen-tag">Generation VIII</div>
+                    <h2 class="profile-name">Camila de Onís</h2>
+                    <p class="profile-dates">b. December 20, 1983</p>
+                    <span class="status-badge status-minimal">Placeholder</span>
+
+                    <div class="profile-bio">
+                        <p>Camila de Onís is the daughter of Paco de Onís and a member of the eighth generation of the de Onís family.</p>
+                    </div>
+
+                    <div class="connections">
+                        <h4>Connections</h4>
+                        <div class="connection-chips">
+                            <button class="chip" data-profile="paco-de-onis"><span class="chip-label">Parent:</span> Paco de Onís</button>
+                            <button class="chip" data-profile="alejandro-de-onis"><span class="chip-label">Sibling:</span> Alejandro de Onís</button>
                         </div>
                     </div>
                 </div>

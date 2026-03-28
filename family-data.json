@@ -317,7 +317,7 @@
         "500 Years — Sundance premiere (2017)"
       ],
       "spouses": ["jody-hagberg", "pamela-yates"],
-      "children": ["alejandro"],
+      "children": ["alejandro", "camila"],
       "parents": ["juan-journalist"]
     },
     "pamela-yates": {
@@ -368,6 +368,20 @@
       "spouses": [],
       "children": [],
       "parents": ["paco", "jody-hagberg"]
+    },
+    "camila": {
+      "id": "camila",
+      "name": "Camila de Onís",
+      "shortName": "Camila de Onís",
+      "generation": 8,
+      "born": "December 20, 1983",
+      "role": "",
+      "medium": "",
+      "researchStatus": "placeholder",
+      "narrative": "Daughter of Paco de Onís. Member of the eighth generation of the de Onís family.",
+      "spouses": [],
+      "children": [],
+      "parents": ["paco"]
     },
     "jose-maria-onis-bondia": {
       "id": "jose-maria-onis-bondia",
